@@ -5,6 +5,7 @@ import ShareButton from "@/components/ShareButton";
 
 type Article = {
   id: string;
+  slug: string;
   title: string;
   summary: string | null;
   content: string | null;
@@ -12,11 +13,11 @@ type Article = {
   main_image_url: string | null;
 };
 
-async function getArticle(id: string) {
+async function getArticle(slug: string) {
   const { data, error } = await supabase
     .from("articles")
-    .select("id,title,summary,content,created_at,main_image_url")
-    .eq("id", id)
+    .select("id,slug,title,summary,content,created_at,main_image_url")
+    .eq("slug", slug)
     .single();
 
   return { data: data as Article | null, error };
@@ -25,19 +26,17 @@ async function getArticle(id: string) {
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
-  const { id } = await params;
+  const { slug } = await params;
 
-  console.log("generateMetadata resolved id:", id);
-
-  if (!id || id === "undefined") {
+  if (!slug || slug === "undefined") {
     return {
-      title: "Invalid article ID",
+      title: "Invalid article slug",
     };
   }
 
-  const { data: article } = await getArticle(id);
+  const { data: article } = await getArticle(slug);
 
   if (!article) {
     return {
@@ -62,27 +61,22 @@ export async function generateMetadata({
 export default async function ArticleDetailPage({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: Promise<{ slug: string }>;
 }) {
-  const { id } = await params;
+  const { slug } = await params;
 
-  console.log("ArticleDetailPage resolved id:", id);
-
-  if (!id || id === "undefined") {
+  if (!slug || slug === "undefined") {
     return (
       <main className="min-h-screen px-4 py-8 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-3xl rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
-          <h1 className="text-3xl font-bold text-slate-900">Invalid article ID</h1>
-          <p className="mt-4 text-slate-700">The article ID is missing or invalid.</p>
+          <h1 className="text-3xl font-bold text-slate-900">Invalid article slug</h1>
+          <p className="mt-4 text-slate-700">The article slug is missing or invalid.</p>
         </div>
       </main>
     );
   }
 
-  const { data: article, error } = await getArticle(id);
-
-  console.log("ArticleDetailPage article data:", article);
-  console.log("ArticleDetailPage error:", error);
+  const { data: article, error } = await getArticle(slug);
 
   if (error) {
     if (error.code === "PGRST116" || error.message.includes("No rows found")) {
@@ -111,7 +105,7 @@ export default async function ArticleDetailPage({
           <p className="text-sm uppercase tracking-[0.2em] text-slate-500">Article</p>
           <div className="flex items-start justify-between gap-4">
             <h1 className="text-4xl font-bold leading-tight text-slate-900">{article.title}</h1>
-            <ShareButton url={`/article/${article.id}`} title={article.title} />
+            <ShareButton url={`/article/${article.slug}`} title={article.title} />
           </div>
           <p className="text-base text-slate-600">{article.summary ?? "No summary available."}</p>
           <p className="text-sm text-slate-500">
