@@ -29,20 +29,20 @@ export default async function NewspapersPage() {
   console.log("Rendering NewspapersPage with newspapers:", newspapers?.map((item) => ({ id: item.id, slug: item.slug, name: item.name })));
 
   return (
-    <main className="min-h-screen px-4 py-8 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-5xl">
+    <main className="min-h-screen px-4 py-12 sm:py-16 sm:px-6 lg:px-8 bg-slate-50">
+      <div className="container-lg">
         <div className="mb-12">
-          <h1 className="text-4xl font-bold text-slate-900">Newspapers</h1>
-          <p className="mt-2 text-slate-600">Browse news sources across Uzbekistan</p>
+          <h1 className="text-4xl sm:text-5xl font-bold text-slate-900">Newspapers</h1>
+          <p className="mt-4 text-lg text-slate-600">Browse news sources across Uzbekistan</p>
         </div>
 
         {error ? (
-          <div className="rounded-lg border border-red-200 bg-red-50 p-6">
-            <p className="text-red-800">Unable to load newspapers</p>
-            <p className="mt-1 text-sm text-red-700">{error.message}</p>
+          <div className="rounded-lg border border-red-200 bg-red-50 p-8">
+            <p className="font-medium text-red-800">Unable to load newspapers</p>
+            <p className="mt-2 text-slate-600">{error.message}</p>
           </div>
         ) : !newspapers || newspapers.length === 0 ? (
-          <div className="rounded-lg border border-slate-200 bg-slate-50 p-12 text-center">
+          <div className="rounded-lg border border-slate-200 bg-white p-12 text-center">
             <p className="text-slate-600">No newspapers available yet</p>
           </div>
         ) : (
@@ -57,10 +57,10 @@ export default async function NewspapersPage() {
                 return (
                   <div
                     key={newspaper.id}
-                    className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm"
+                    className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm"
                   >
                     {newspaper.logo_url ? (
-                      <div className="mb-4 flex h-20 items-center justify-center rounded-lg bg-slate-100">
+                      <div className="mb-4 flex h-20 items-center justify-center rounded-lg bg-slate-50 border border-slate-100">
                         <img
                           src={newspaper.logo_url}
                           alt={newspaper.name}
@@ -68,7 +68,7 @@ export default async function NewspapersPage() {
                         />
                       </div>
                     ) : (
-                      <div className="mb-4 flex h-20 items-center justify-center rounded-lg bg-slate-100">
+                      <div className="mb-4 flex h-20 items-center justify-center rounded-lg bg-slate-50 border border-slate-100">
                         <span className="text-sm font-semibold text-slate-500">{newspaper.name.slice(0, 2).toUpperCase()}</span>
                       </div>
                     )}
@@ -83,7 +83,7 @@ export default async function NewspapersPage() {
                       <p className="mt-3 line-clamp-2 text-sm text-slate-600">{newspaper.description}</p>
                     )}
 
-                    <p className="mt-3 text-xs text-amber-600">Missing slug</p>
+                    <p className="mt-4 text-xs text-amber-600">Missing slug</p>
                   </div>
                 );
               }
@@ -97,10 +97,10 @@ export default async function NewspapersPage() {
                 <Link
                   key={newspaper.id}
                   href={`/newspaper/${newspaper.slug}`}
-                  className="group rounded-lg border border-slate-200 bg-white p-6 shadow-sm transition hover:border-slate-900 hover:shadow-md"
+                  className="group rounded-xl border border-slate-200 bg-white p-6 shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-200"
                 >
                   {newspaper.logo_url ? (
-                    <div className="mb-4 flex h-20 items-center justify-center rounded-lg bg-slate-100">
+                    <div className="mb-4 flex h-20 items-center justify-center rounded-lg bg-slate-50 border border-slate-100">
                       <img
                         src={newspaper.logo_url}
                         alt={newspaper.name}
@@ -108,12 +108,12 @@ export default async function NewspapersPage() {
                       />
                     </div>
                   ) : (
-                    <div className="mb-4 flex h-20 items-center justify-center rounded-lg bg-slate-100">
+                    <div className="mb-4 flex h-20 items-center justify-center rounded-lg bg-slate-50 border border-slate-100">
                       <span className="text-sm font-semibold text-slate-500">{newspaper.name.slice(0, 2).toUpperCase()}</span>
                     </div>
                   )}
 
-                  <h2 className="text-lg font-semibold text-slate-900 group-hover:text-slate-700">
+                  <h2 className="text-lg font-semibold text-slate-900 group-hover:text-blue-600 transition">
                     {newspaper.name}
                   </h2>
 

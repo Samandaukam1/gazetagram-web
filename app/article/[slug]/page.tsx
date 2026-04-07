@@ -145,71 +145,114 @@ export default async function ArticleDetailPage({
   const relatedArticles = await getRelatedArticles(article);
 
   return (
-    <main className="min-h-screen px-4 py-8 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-3xl space-y-8 rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
-        <nav className="text-xs text-slate-500" aria-label="Breadcrumb">
-          <ol className="flex flex-wrap items-center gap-1">
+    <main className="min-h-screen bg-slate-50">
+      {/* Breadcrumb Navigation */}
+      <div className="border-b border-slate-200 bg-white px-4 sm:px-6 lg:px-8">
+        <nav className="container-lg py-4" aria-label="Breadcrumb">
+          <ol className="flex flex-wrap items-center gap-2 text-sm text-slate-600">
             <li>
-              <Link href="/" className="hover:text-slate-700">Home</Link>
-              <span className="mx-1">/</span>
+              <Link href="/" className="hover:text-slate-900 transition">Home</Link>
             </li>
+            <li className="text-slate-400">/</li>
             <li>
-              <Link href="/articles" className="hover:text-slate-700">Articles</Link>
-              <span className="mx-1">/</span>
+              <Link href="/articles" className="hover:text-slate-900 transition">Articles</Link>
             </li>
-            <li aria-current="page" className="font-semibold text-slate-700 truncate">
+            <li className="text-slate-400">/</li>
+            <li className="font-medium text-slate-900 truncate" aria-current="page">
               {article.title}
             </li>
           </ol>
         </nav>
-        <div className="space-y-4">
-          <p className="text-sm uppercase tracking-[0.2em] text-slate-500">Article</p>
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-            <div>
-              <h1 className="text-4xl font-bold leading-tight text-slate-900">{article.title}</h1>
-              <p className="mt-3 text-xs text-slate-500">{article.created_at ? new Date(article.created_at).toLocaleDateString(undefined, {
+      </div>
+
+      {/* Article Header */}
+      <div className="border-b border-slate-200 bg-white px-4 sm:px-6 lg:px-8">
+        <div className="container-md py-12 sm:py-16">
+          <div className="mb-6">
+            <p className="text-sm font-semibold uppercase tracking-wider text-slate-500">Article</p>
+          </div>
+          <h1 className="text-5xl sm:text-6xl font-bold leading-tight text-slate-900">
+            {article.title}
+          </h1>
+          <p className="mt-6 text-xl text-slate-600">
+            {article.summary ?? "No summary available."}
+          </p>
+          <div className="mt-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex flex-wrap items-center gap-4 text-sm text-slate-600">
+              <span>
+                {article.created_at ? new Date(article.created_at).toLocaleDateString(undefined, {
                   year: "numeric",
-                  month: "short",
+                  month: "long",
                   day: "numeric",
-                }) : "Date unavailable"} • {readingTime(article.content ?? "")}</p>
+                }) : "Date unavailable"}
+              </span>
+              <span className="text-slate-400">•</span>
+              <span>{readingTime(article.content ?? "")}</span>
             </div>
             <ShareButton url={`/article/${article.slug}`} title={article.title} />
           </div>
-          <p className="text-base text-slate-600">{article.summary ?? "No summary available."}</p>
         </div>
+      </div>
 
-        {article.main_image_url ? (
-          <div className="overflow-hidden rounded-3xl border border-slate-200 bg-slate-100">
-            <img
-              src={article.main_image_url}
-              alt={article.title}
-              className="h-auto w-full object-cover"
-            />
+      {/* Article Image */}
+      {article.main_image_url && (
+        <div className="border-b border-slate-200 bg-white px-4 sm:px-6 lg:px-8 py-8">
+          <div className="container-md">
+            <div className="overflow-hidden rounded-2xl bg-slate-200">
+              <img
+                src={article.main_image_url}
+                alt={article.title}
+                className="h-auto w-full object-cover"
+              />
+            </div>
           </div>
-        ) : null}
-
-        <div className="prose max-w-none text-slate-700">
-          {article.content ? article.content : "No content available for this article."}
         </div>
+      )}
 
-        {relatedArticles.length > 0 && (
-          <div className="rounded-3xl border border-slate-200 bg-slate-50 p-6">
-            <h2 className="text-2xl font-semibold text-slate-900">Related Articles</h2>
-            <div className="mt-5 space-y-4">
+      {/* Article Content */}
+      <div className="px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+        <article className="container-md">
+          <div className="prose prose-slate max-w-none mb-12">
+            {article.content ? (
+              <div className="text-lg leading-relaxed text-slate-700 [&>p]:mb-6 [&>h2]:mt-8 [&>h2]:mb-4 [&>h2]:text-2xl [&>h2]:font-bold [&>h2]:text-slate-900 [&>ul]:mb-6 [&>li]:ml-6 [&>li]:mb-2">
+                {article.content}
+              </div>
+            ) : (
+              <p className="text-slate-600">No content available for this article.</p>
+            )}
+          </div>
+        </article>
+      </div>
+
+      {/* Related Articles Section */}
+      {relatedArticles.length > 0 && (
+        <div className="border-t border-slate-200 bg-white px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+          <div className="container-md">
+            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-8">
+              Related Articles
+            </h2>
+            <div className="grid gap-6 sm:grid-cols-2">
               {relatedArticles.map((related) => (
                 <Link
                   key={related.id}
                   href={`/article/${related.slug}`}
-                  className="block rounded-2xl border border-slate-200 bg-white p-4 transition hover:border-slate-900 hover:shadow-sm"
+                  className="group rounded-xl border border-slate-200 bg-slate-50 p-6 hover:shadow-md hover:border-slate-300 transition-all duration-200"
                 >
-                  <h3 className="font-semibold text-slate-900">{related.title}</h3>
-                  <p className="mt-2 text-sm text-slate-600">{related.summary ?? "No summary available."}</p>
+                  <h3 className="font-semibold text-slate-900 group-hover:text-blue-600 transition line-clamp-2">
+                    {related.title}
+                  </h3>
+                  <p className="mt-3 text-sm text-slate-600 line-clamp-2">
+                    {related.summary ?? "No summary available."}
+                  </p>
+                  <p className="mt-4 text-xs text-slate-500">
+                    {related.created_at ? new Date(related.created_at).toLocaleDateString() : "Unknown date"}
+                  </p>
                 </Link>
               ))}
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </main>
   );
 }

@@ -47,58 +47,70 @@ export default async function Home() {
   const { data: newspapers, error: newspapersError } = await getNewspapers();
 
   return (
-    <main className="min-h-screen">
+    <main className="min-h-screen bg-slate-50">
       {/* Hero Section */}
-      <section className="bg-gradient-to-b from-slate-900 to-slate-800 px-4 py-20 text-white sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-4xl text-center">
-          <h1 className="text-5xl font-bold tracking-tight sm:text-6xl">Gazetagram</h1>
-          <p className="mt-4 text-xl text-slate-300">Uzbekistan's digital newspaper platform</p>
-          <p className="mt-2 text-sm text-slate-400">Read the latest news from trusted sources</p>
-          <div className="mt-8 flex justify-center gap-4">
-            <Link
-              href="/articles"
-              className="rounded-lg bg-white px-6 py-3 font-medium text-slate-900 hover:bg-slate-100"
-            >
-              Browse Articles
-            </Link>
-            <Link
-              href="/newspapers"
-              className="rounded-lg bg-slate-700 px-6 py-3 font-medium text-white hover:bg-slate-600"
-            >
-              Browse Newspapers
-            </Link>
+      <section className="border-b border-slate-200 bg-white px-4 py-20 sm:py-32 sm:px-6 lg:px-8">
+        <div className="container-lg">
+          <div className="max-w-2xl">
+            <h1 className="text-5xl sm:text-6xl font-bold leading-tight text-slate-900">
+              Gazetagram
+            </h1>
+            <p className="mt-6 text-xl text-slate-600">
+              Stay informed with the latest news and stories from trusted sources across Uzbekistan.
+            </p>
+            <div className="mt-8 flex flex-col sm:flex-row gap-4">
+              <Link
+                href="/articles"
+                className="btn-primary"
+              >
+                Browse Articles
+              </Link>
+              <Link
+                href="/newspapers"
+                className="btn-secondary"
+              >
+                Explore Newspapers
+              </Link>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Latest Articles Section */}
-      <section className="px-4 py-16 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-5xl">
-          <div className="mb-10">
-            <h2 className="text-3xl font-bold text-slate-900">Latest Articles</h2>
-            <p className="mt-2 text-slate-600">Stay updated with the newest stories</p>
+      <section className="px-4 py-16 sm:py-24 sm:px-6 lg:px-8">
+        <div className="container-lg">
+          <div className="mb-12">
+            <h2 className="text-3xl sm:text-4xl font-bold text-slate-900">Latest Articles</h2>
+            <p className="mt-3 text-lg text-slate-600">Stay updated with the newest stories</p>
           </div>
 
           {articlesError ? (
-            <div className="rounded-lg border border-red-200 bg-red-50 p-6">
-              <p className="text-red-800">Unable to load articles</p>
-              <p className="mt-1 text-sm text-red-700">{articlesError.message}</p>
+            <div className="rounded-lg border border-red-200 bg-red-50 p-8">
+              <p className="font-medium text-red-800">Unable to load articles</p>
+              <p className="mt-2 text-sm text-red-700">{articlesError.message}</p>
             </div>
           ) : !articles || articles.length === 0 ? (
-            <div className="rounded-lg border border-slate-200 bg-slate-50 p-12 text-center">
+            <div className="rounded-lg border border-slate-200 bg-white p-12 text-center">
               <p className="text-slate-600">No articles available yet</p>
             </div>
           ) : (
-            <div className="grid gap-6 sm:grid-cols-2">
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {articles.map((article) => (
                 <Link
                   key={article.id}
                   href={`/article/${article.slug}`}
-                  className="group rounded-lg border border-slate-200 bg-white p-6 shadow-sm transition hover:border-slate-900 hover:shadow-md"
+                  className="group rounded-xl border border-slate-200 bg-white p-6 shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-200"
                 >
-                  <h3 className="font-semibold text-slate-900 group-hover:text-slate-700">{article.title}</h3>
-                  <p className="mt-2 text-sm text-slate-600">{article.summary ?? "No summary available"}</p>
-                  <p className="mt-3 text-xs text-slate-500">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                    Article
+                  </p>
+                  <h3 className="mt-3 text-lg font-semibold text-slate-900 group-hover:text-blue-600 transition line-clamp-2">
+                    {article.title}
+                  </h3>
+                  <p className="mt-3 text-sm text-slate-600 line-clamp-2">
+                    {article.summary ?? "No summary available"}
+                  </p>
+                  <p className="mt-4 text-xs text-slate-500">
                     {article.created_at
                       ? new Date(article.created_at).toLocaleDateString()
                       : "Unknown date"}
@@ -108,10 +120,10 @@ export default async function Home() {
             </div>
           )}
 
-          <div className="mt-8 text-center">
+          <div className="mt-10 text-center">
             <Link
               href="/articles"
-              className="inline-block text-slate-600 hover:text-slate-900 underline"
+              className="text-blue-600 hover:text-blue-700 font-medium transition"
             >
               View all articles →
             </Link>
@@ -119,21 +131,21 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Newspapers Section */}
-      <section className="border-t border-slate-200 bg-slate-50 px-4 py-16 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-5xl">
-          <div className="mb-10">
-            <h2 className="text-3xl font-bold text-slate-900">Featured Newspapers</h2>
-            <p className="mt-2 text-slate-600">Read from trusted news sources across Uzbekistan</p>
+      {/* Featured Newspapers Section */}
+      <section className="border-t border-slate-200 bg-white px-4 py-16 sm:py-24 sm:px-6 lg:px-8">
+        <div className="container-lg">
+          <div className="mb-12">
+            <h2 className="text-3xl sm:text-4xl font-bold text-slate-900">Featured Newspapers</h2>
+            <p className="mt-3 text-lg text-slate-600">Read from trusted news sources</p>
           </div>
 
           {newspapersError ? (
-            <div className="rounded-lg border border-red-200 bg-red-50 p-6">
-              <p className="text-red-800">Unable to load newspapers</p>
-              <p className="mt-1 text-sm text-red-700">{newspapersError.message}</p>
+            <div className="rounded-lg border border-red-200 bg-red-50 p-8">
+              <p className="font-medium text-red-800">Unable to load newspapers</p>
+              <p className="mt-2 text-sm text-red-700">{newspapersError.message}</p>
             </div>
           ) : !newspapers || newspapers.length === 0 ? (
-            <div className="rounded-lg border border-slate-200 bg-white p-12 text-center">
+            <div className="rounded-lg border border-slate-200 bg-slate-50 p-12 text-center">
               <p className="text-slate-600">No newspapers available yet</p>
             </div>
           ) : (
@@ -148,10 +160,10 @@ export default async function Home() {
                   return (
                     <div
                       key={newspaper.id}
-                      className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm"
+                      className="rounded-xl border border-slate-200 bg-slate-50 p-6 shadow-sm"
                     >
                       {newspaper.logo_url ? (
-                        <div className="mb-4 flex h-16 items-center justify-center rounded-lg bg-slate-100">
+                        <div className="mb-4 flex h-16 items-center justify-center rounded-lg bg-white border border-slate-200">
                           <img
                             src={newspaper.logo_url}
                             alt={newspaper.name}
@@ -159,7 +171,7 @@ export default async function Home() {
                           />
                         </div>
                       ) : (
-                        <div className="mb-4 flex h-16 items-center justify-center rounded-lg bg-slate-100">
+                        <div className="mb-4 flex h-16 items-center justify-center rounded-lg bg-white border border-slate-200">
                           <span className="text-xs text-slate-500">No logo</span>
                         </div>
                       )}
@@ -181,10 +193,10 @@ export default async function Home() {
                   <Link
                     key={newspaper.id}
                     href={`/newspaper/${newspaper.slug}`}
-                    className="group rounded-lg border border-slate-200 bg-white p-6 shadow-sm transition hover:shadow-md"
+                    className="group rounded-xl border border-slate-200 bg-white p-6 shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-200"
                   >
                     {newspaper.logo_url ? (
-                      <div className="mb-4 flex h-16 items-center justify-center rounded-lg bg-slate-100">
+                      <div className="mb-4 flex h-16 items-center justify-center rounded-lg bg-slate-50 border border-slate-100">
                         <img
                           src={newspaper.logo_url}
                           alt={newspaper.name}
@@ -192,34 +204,28 @@ export default async function Home() {
                         />
                       </div>
                     ) : (
-                      <div className="mb-4 flex h-16 items-center justify-center rounded-lg bg-slate-100">
-                        <span className="text-xs text-slate-500">No logo</span>
+                      <div className="mb-4 flex h-16 items-center justify-center rounded-lg bg-slate-50 border border-slate-100">
+                        <span className="text-xs font-semibold text-slate-500">{newspaper.name.slice(0, 2).toUpperCase()}</span>
                       </div>
                     )}
-                    <h3 className="font-semibold text-slate-900">{newspaper.name}</h3>
+                    <h3 className="font-semibold text-slate-900 group-hover:text-blue-600 transition">{newspaper.name}</h3>
                     {newspaper.region && (
                       <p className="mt-2 text-sm text-slate-600">{newspaper.region}</p>
                     )}
-                    <p className="mt-4 text-xs text-slate-500">Coming soon</p>
                   </Link>
                 );
               })}
             </div>
           )}
-        </div>
-      </section>
 
-      {/* Footer CTA */}
-      <section className="border-t border-slate-200 bg-white px-4 py-12 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-4xl text-center">
-          <h3 className="text-2xl font-bold text-slate-900">Get the latest news</h3>
-          <p className="mt-2 text-slate-600">Stay informed with Gazetagram</p>
-          <Link
-            href="/articles"
-            className="mt-6 inline-block rounded-lg bg-slate-900 px-6 py-3 font-medium text-white hover:bg-slate-800"
-          >
-            Explore Articles
-          </Link>
+          <div className="mt-10 text-center">
+            <Link
+              href="/newspapers"
+              className="text-blue-600 hover:text-blue-700 font-medium transition"
+            >
+              View all newspapers →
+            </Link>
+          </div>
         </div>
       </section>
     </main>
