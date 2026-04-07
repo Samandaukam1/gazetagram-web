@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import { supabase } from "@/lib/supabase";
@@ -12,16 +13,58 @@ type Article = {
   content: string | null;
   created_at: string | null;
   main_image_url: string | null;
+  newspaper_id: string | null;
+  category: string | null;
+};
+
+type RelatedArticle = {
+  id: string;
+  slug: string;
+  title: string;
+  summary: string | null;
+  created_at: string | null;
 };
 
 async function getArticle(slug: string) {
   const { data, error } = await supabase
     .from("articles")
-    .select("id,slug,title,summary,content,created_at,main_image_url")
+    .select("id,slug,title,summary,content,created_at,main_image_url,newspaper_id,category")
     .eq("slug", slug)
     .single();
 
   return { data: data as Article | null, error };
+}
+
+async function getRelatedArticles(article: Article) {
+  const relatedByNewspaper = article.newspaper_id
+    ? await supabase
+        .from("articles")
+        .select("id,slug,title,summary,created_at")
+        .eq("newspaper_id", article.newspaper_id)
+        .neq("id", article.id)
+        .order("created_at", { ascending: false })
+        .limit(3)
+    : { data: null, error: null };
+
+  if (relatedByNewspaper.data && relatedByNewspaper.data.length > 0) {
+    return relatedByNewspaper.data;
+  }
+
+  if (article.category) {
+    const relatedByCategory = await supabase
+      .from("articles")
+      .select("id,slug,title,summary,created_at")
+      .eq("category", article.category)
+      .neq("id", article.id)
+      .order("created_at", { ascending: false })
+      .limit(3);
+
+    if (relatedByCategory.data && relatedByCategory.data.length > 0) {
+      return relatedByCategory.data;
+    }
+  }
+
+  return [] as RelatedArticle[];
 }
 
 export async function generateMetadata({
@@ -99,6 +142,8 @@ export default async function ArticleDetailPage({
     notFound();
   }
 
+  const relatedArticles = await getRelatedArticles(article);
+
   return (
     <main className="min-h-screen px-4 py-8 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-3xl space-y-8 rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
@@ -131,6 +176,24 @@ export default async function ArticleDetailPage({
         <div className="prose max-w-none text-slate-700">
           {article.content ? article.content : "No content available for this article."}
         </div>
+
+        {relatedArticles.length > 0 && (
+          <div className="rounded-3xl border border-slate-200 bg-slate-50 p-6">
+            <h2 className="text-2xl font-semibold text-slate-900">Related Articles</h2>
+            <div className="mt-5 space-y-4">
+              {relatedArticles.map((related) => (
+                <Link
+                  key={related.id}
+                  href={`/article/${related.slug}`}
+                  className="block rounded-2xl border border-slate-200 bg-white p-4 transition hover:border-slate-900 hover:shadow-sm"
+                >
+                  <h3 className="font-semibold text-slate-900">{related.title}</h3>
+                  <p className="mt-2 text-sm text-slate-600">{related.summary ?? "No summary available."}</p>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </main>
   );
