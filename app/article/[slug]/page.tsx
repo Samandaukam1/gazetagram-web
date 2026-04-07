@@ -147,6 +147,21 @@ export default async function ArticleDetailPage({
   return (
     <main className="min-h-screen px-4 py-8 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-3xl space-y-8 rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
+        <nav className="text-xs text-slate-500" aria-label="Breadcrumb">
+          <ol className="flex flex-wrap items-center gap-1">
+            <li>
+              <Link href="/" className="hover:text-slate-700">Home</Link>
+              <span className="mx-1">/</span>
+            </li>
+            <li>
+              <Link href="/articles" className="hover:text-slate-700">Articles</Link>
+              <span className="mx-1">/</span>
+            </li>
+            <li aria-current="page" className="font-semibold text-slate-700 truncate">
+              {article.title}
+            </li>
+          </ol>
+        </nav>
         <div className="space-y-4">
           <p className="text-sm uppercase tracking-[0.2em] text-slate-500">Article</p>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">

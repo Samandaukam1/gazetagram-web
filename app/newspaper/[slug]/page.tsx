@@ -87,6 +87,21 @@ export default async function NewspaperDetailPage({
       {/* Header Section */}
       <section className="border-b border-slate-200 bg-white px-4 py-8 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-3xl">
+          <nav className="mb-4 text-xs text-slate-500" aria-label="Breadcrumb">
+            <ol className="flex flex-wrap items-center gap-1">
+              <li>
+                <Link href="/" className="hover:text-slate-700">Home</Link>
+                <span className="mx-1">/</span>
+              </li>
+              <li>
+                <Link href="/newspapers" className="hover:text-slate-700">Newspapers</Link>
+                <span className="mx-1">/</span>
+              </li>
+              <li aria-current="page" className="font-semibold text-slate-700 truncate">
+                {newspaper.name}
+              </li>
+            </ol>
+          </nav>
           <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
             <div>
               {newspaper.logo_url && (
