@@ -16,11 +16,17 @@ async function getNewspapers() {
     .select("id,slug,name,logo_url,region,description")
     .order("name", { ascending: true });
 
+  console.log("getNewspapers page result:", {
+    count: data?.length ?? 0,
+    error: error ? { message: error.message, code: error.code } : null,
+  });
+
   return { data, error };
 }
 
 export default async function NewspapersPage() {
   const { data: newspapers, error } = await getNewspapers();
+  console.log("Rendering NewspapersPage with newspapers:", newspapers?.map((item) => ({ id: item.id, slug: item.slug, name: item.name })));
 
   return (
     <main className="min-h-screen px-4 py-8 sm:px-6 lg:px-8">
@@ -41,39 +47,86 @@ export default async function NewspapersPage() {
           </div>
         ) : (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {newspapers.map((newspaper) => (
-              <Link
-                key={newspaper.id}
-                href={`/newspaper/${newspaper.slug}`}
-                className="group rounded-lg border border-slate-200 bg-white p-6 shadow-sm transition hover:border-slate-900 hover:shadow-md"
-              >
-                {newspaper.logo_url ? (
-                  <div className="mb-4 flex h-20 items-center justify-center rounded-lg bg-slate-100">
-                    <img
-                      src={newspaper.logo_url}
-                      alt={newspaper.name}
-                      className="h-full w-full object-contain p-2"
-                    />
+            {newspapers.map((newspaper) => {
+              if (!newspaper.slug) {
+                console.log("Newspaper missing slug in newspapers list:", {
+                  id: newspaper.id,
+                  name: newspaper.name,
+                });
+
+                return (
+                  <div
+                    key={newspaper.id}
+                    className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm"
+                  >
+                    {newspaper.logo_url ? (
+                      <div className="mb-4 flex h-20 items-center justify-center rounded-lg bg-slate-100">
+                        <img
+                          src={newspaper.logo_url}
+                          alt={newspaper.name}
+                          className="h-full w-full object-contain p-2"
+                        />
+                      </div>
+                    ) : (
+                      <div className="mb-4 flex h-20 items-center justify-center rounded-lg bg-slate-100">
+                        <span className="text-sm font-semibold text-slate-500">{newspaper.name.slice(0, 2).toUpperCase()}</span>
+                      </div>
+                    )}
+
+                    <h2 className="text-lg font-semibold text-slate-900">{newspaper.name}</h2>
+
+                    {newspaper.region && (
+                      <p className="mt-2 text-sm text-slate-600">{newspaper.region}</p>
+                    )}
+
+                    {newspaper.description && (
+                      <p className="mt-3 line-clamp-2 text-sm text-slate-600">{newspaper.description}</p>
+                    )}
+
+                    <p className="mt-3 text-xs text-amber-600">Missing slug</p>
                   </div>
-                ) : (
-                  <div className="mb-4 flex h-20 items-center justify-center rounded-lg bg-slate-100">
-                    <span className="text-sm font-semibold text-slate-500">{newspaper.name.slice(0, 2).toUpperCase()}</span>
-                  </div>
-                )}
+                );
+              }
 
-                <h2 className="text-lg font-semibold text-slate-900 group-hover:text-slate-700">
-                  {newspaper.name}
-                </h2>
+              console.log("Newspaper list link source:", {
+                slug: newspaper.slug,
+                name: newspaper.name,
+              });
 
-                {newspaper.region && (
-                  <p className="mt-2 text-sm text-slate-600">{newspaper.region}</p>
-                )}
+              return (
+                <Link
+                  key={newspaper.id}
+                  href={`/newspaper/${newspaper.slug}`}
+                  className="group rounded-lg border border-slate-200 bg-white p-6 shadow-sm transition hover:border-slate-900 hover:shadow-md"
+                >
+                  {newspaper.logo_url ? (
+                    <div className="mb-4 flex h-20 items-center justify-center rounded-lg bg-slate-100">
+                      <img
+                        src={newspaper.logo_url}
+                        alt={newspaper.name}
+                        className="h-full w-full object-contain p-2"
+                      />
+                    </div>
+                  ) : (
+                    <div className="mb-4 flex h-20 items-center justify-center rounded-lg bg-slate-100">
+                      <span className="text-sm font-semibold text-slate-500">{newspaper.name.slice(0, 2).toUpperCase()}</span>
+                    </div>
+                  )}
 
-                {newspaper.description && (
-                  <p className="mt-3 line-clamp-2 text-sm text-slate-600">{newspaper.description}</p>
-                )}
-              </Link>
-            ))}
+                  <h2 className="text-lg font-semibold text-slate-900 group-hover:text-slate-700">
+                    {newspaper.name}
+                  </h2>
+
+                  {newspaper.region && (
+                    <p className="mt-2 text-sm text-slate-600">{newspaper.region}</p>
+                  )}
+
+                  {newspaper.description && (
+                    <p className="mt-3 line-clamp-2 text-sm text-slate-600">{newspaper.description}</p>
+                  )}
+                </Link>
+              );
+            })}
           </div>
         )}
       </div>

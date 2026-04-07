@@ -48,6 +48,7 @@ export default async function NewspaperDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
+  console.log("Newspaper page params.slug:", slug);
 
   if (!slug || slug === "undefined") {
     return (
@@ -64,8 +65,10 @@ export default async function NewspaperDetailPage({
   }
 
   const { data: newspaper, error: newspaperError } = await getNewspaper(slug);
+  console.log("Fetched newspaper for slug:", { slug, newspaper, newspaperError });
 
   if (newspaperError || !newspaper) {
+    console.log("Newspaper not found for slug:", slug, newspaperError);
     notFound();
   }
 

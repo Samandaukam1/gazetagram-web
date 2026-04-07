@@ -33,6 +33,12 @@ async function getNewspapers() {
     .select("id,slug,name,logo_url,region")
     .limit(6);
 
+  console.log("getNewspapers result:", {
+    count: data?.length ?? 0,
+    error: error ? { message: error.message, code: error.code } : null,
+    sample: data?.slice(0, 3),
+  });
+
   return { data, error };
 }
 
@@ -132,32 +138,72 @@ export default async function Home() {
             </div>
           ) : (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {newspapers.map((newspaper) => (
-                <Link
-                  key={newspaper.id}
-                  href={`/newspaper/${newspaper.slug}`}
-                  className="group rounded-lg border border-slate-200 bg-white p-6 shadow-sm transition hover:shadow-md"
-                >
-                  {newspaper.logo_url ? (
-                    <div className="mb-4 flex h-16 items-center justify-center rounded-lg bg-slate-100">
-                      <img
-                        src={newspaper.logo_url}
-                        alt={newspaper.name}
-                        className="h-full w-full object-contain p-2"
-                      />
+              {newspapers.map((newspaper) => {
+                if (!newspaper.slug) {
+                  console.log("Newspaper missing slug in homepage cards:", {
+                    id: newspaper.id,
+                    name: newspaper.name,
+                  });
+
+                  return (
+                    <div
+                      key={newspaper.id}
+                      className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm"
+                    >
+                      {newspaper.logo_url ? (
+                        <div className="mb-4 flex h-16 items-center justify-center rounded-lg bg-slate-100">
+                          <img
+                            src={newspaper.logo_url}
+                            alt={newspaper.name}
+                            className="h-full w-full object-contain p-2"
+                          />
+                        </div>
+                      ) : (
+                        <div className="mb-4 flex h-16 items-center justify-center rounded-lg bg-slate-100">
+                          <span className="text-xs text-slate-500">No logo</span>
+                        </div>
+                      )}
+                      <h3 className="font-semibold text-slate-900">{newspaper.name}</h3>
+                      {newspaper.region && (
+                        <p className="mt-2 text-sm text-slate-600">{newspaper.region}</p>
+                      )}
+                      <p className="mt-4 text-xs text-amber-600">Missing slug</p>
                     </div>
-                  ) : (
-                    <div className="mb-4 flex h-16 items-center justify-center rounded-lg bg-slate-100">
-                      <span className="text-xs text-slate-500">No logo</span>
-                    </div>
-                  )}
-                  <h3 className="font-semibold text-slate-900">{newspaper.name}</h3>
-                  {newspaper.region && (
-                    <p className="mt-2 text-sm text-slate-600">{newspaper.region}</p>
-                  )}
-                  <p className="mt-4 text-xs text-slate-500">Coming soon</p>
-                </Link>
-              ))}
+                  );
+                }
+
+                console.log("Newspaper homepage link source:", {
+                  slug: newspaper.slug,
+                  name: newspaper.name,
+                });
+
+                return (
+                  <Link
+                    key={newspaper.id}
+                    href={`/newspaper/${newspaper.slug}`}
+                    className="group rounded-lg border border-slate-200 bg-white p-6 shadow-sm transition hover:shadow-md"
+                  >
+                    {newspaper.logo_url ? (
+                      <div className="mb-4 flex h-16 items-center justify-center rounded-lg bg-slate-100">
+                        <img
+                          src={newspaper.logo_url}
+                          alt={newspaper.name}
+                          className="h-full w-full object-contain p-2"
+                        />
+                      </div>
+                    ) : (
+                      <div className="mb-4 flex h-16 items-center justify-center rounded-lg bg-slate-100">
+                        <span className="text-xs text-slate-500">No logo</span>
+                      </div>
+                    )}
+                    <h3 className="font-semibold text-slate-900">{newspaper.name}</h3>
+                    {newspaper.region && (
+                      <p className="mt-2 text-sm text-slate-600">{newspaper.region}</p>
+                    )}
+                    <p className="mt-4 text-xs text-slate-500">Coming soon</p>
+                  </Link>
+                );
+              })}
             </div>
           )}
         </div>
