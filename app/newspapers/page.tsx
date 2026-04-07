@@ -6,6 +6,7 @@ type Newspaper = {
   slug: string;
   name: string;
   logo_url: string | null;
+  banner_url: string | null;
   region: string | null;
   description: string | null;
 };
@@ -13,7 +14,7 @@ type Newspaper = {
 async function getNewspapers() {
   const { data, error } = await supabase
     .from("newspapers")
-    .select("id,slug,name,logo_url,region,description")
+    .select("id,slug,name,logo_url,banner_url,region,description")
     .order("name", { ascending: true });
 
   console.log("getNewspapers page result:", {
@@ -57,33 +58,69 @@ export default async function NewspapersPage() {
                 return (
                   <div
                     key={newspaper.id}
-                    className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm"
+                    className="relative rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden"
                   >
-                    {newspaper.logo_url ? (
-                      <div className="mb-4 flex h-20 items-center justify-center rounded-lg bg-slate-50 border border-slate-100">
+                    {/* Banner */}
+                    <div className="h-32 bg-slate-200 rounded-t-xl">
+                      {newspaper.banner_url ? (
                         <img
-                          src={newspaper.logo_url}
+                          src={newspaper.banner_url}
                           alt={newspaper.name}
-                          className="h-full w-full object-contain p-2"
+                          className="h-full w-full object-cover rounded-t-xl"
                         />
+                      ) : (
+                        <div className="h-full w-full bg-gradient-to-br from-slate-200 to-slate-300 rounded-t-xl" />
+                      )}
+                    </div>
+
+                    {/* Logo - Overlapping */}
+                    <div className="absolute top-20 left-4">
+                      {newspaper.logo_url ? (
+                        <div className="h-16 w-16 rounded-full border-4 border-white bg-white shadow-lg overflow-hidden">
+                          <img
+                            src={newspaper.logo_url}
+                            alt={newspaper.name}
+                            className="h-full w-full object-cover"
+                          />
+                        </div>
+                      ) : (
+                        <div className="h-16 w-16 rounded-full border-4 border-white bg-slate-100 shadow-lg flex items-center justify-center">
+                          <span className="text-sm font-semibold text-slate-500">
+                            {newspaper.name.slice(0, 2).toUpperCase()}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Content */}
+                    <div className="p-6 pt-8">
+                      <h2 className="text-lg font-semibold text-slate-900">{newspaper.name}</h2>
+
+                      {newspaper.region && (
+                        <p className="mt-1 text-sm text-slate-600">{newspaper.region}</p>
+                      )}
+
+                      {newspaper.description && (
+                        <p className="mt-3 line-clamp-2 text-sm text-slate-600">{newspaper.description}</p>
+                      )}
+
+                      <div className="mt-4 flex items-center gap-4 text-xs text-slate-500">
+                        <div className="flex items-center gap-1">
+                          <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <span>2.4K subscribers</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                          </svg>
+                          <span>4.8</span>
+                        </div>
                       </div>
-                    ) : (
-                      <div className="mb-4 flex h-20 items-center justify-center rounded-lg bg-slate-50 border border-slate-100">
-                        <span className="text-sm font-semibold text-slate-500">{newspaper.name.slice(0, 2).toUpperCase()}</span>
-                      </div>
-                    )}
 
-                    <h2 className="text-lg font-semibold text-slate-900">{newspaper.name}</h2>
-
-                    {newspaper.region && (
-                      <p className="mt-2 text-sm text-slate-600">{newspaper.region}</p>
-                    )}
-
-                    {newspaper.description && (
-                      <p className="mt-3 line-clamp-2 text-sm text-slate-600">{newspaper.description}</p>
-                    )}
-
-                    <p className="mt-4 text-xs text-amber-600">Missing slug</p>
+                      <p className="mt-4 text-xs text-amber-600">Missing slug</p>
+                    </div>
                   </div>
                 );
               }
@@ -97,33 +134,69 @@ export default async function NewspapersPage() {
                 <Link
                   key={newspaper.id}
                   href={`/newspaper/${newspaper.slug}`}
-                  className="group rounded-xl border border-slate-200 bg-white p-6 shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-200"
+                  className="group relative rounded-xl border border-slate-200 bg-white shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-200 overflow-hidden block"
                 >
-                  {newspaper.logo_url ? (
-                    <div className="mb-4 flex h-20 items-center justify-center rounded-lg bg-slate-50 border border-slate-100">
+                  {/* Banner */}
+                  <div className="h-32 bg-slate-200 rounded-t-xl">
+                    {newspaper.banner_url ? (
                       <img
-                        src={newspaper.logo_url}
+                        src={newspaper.banner_url}
                         alt={newspaper.name}
-                        className="h-full w-full object-contain p-2"
+                        className="h-full w-full object-cover rounded-t-xl"
                       />
+                    ) : (
+                      <div className="h-full w-full bg-gradient-to-br from-slate-200 to-slate-300 rounded-t-xl" />
+                    )}
+                  </div>
+
+                  {/* Logo - Overlapping */}
+                  <div className="absolute top-20 left-4">
+                    {newspaper.logo_url ? (
+                      <div className="h-16 w-16 rounded-full border-4 border-white bg-white shadow-lg overflow-hidden">
+                        <img
+                          src={newspaper.logo_url}
+                          alt={newspaper.name}
+                          className="h-full w-full object-cover"
+                        />
+                      </div>
+                    ) : (
+                      <div className="h-16 w-16 rounded-full border-4 border-white bg-slate-100 shadow-lg flex items-center justify-center">
+                        <span className="text-sm font-semibold text-slate-500">
+                          {newspaper.name.slice(0, 2).toUpperCase()}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Content */}
+                  <div className="p-6 pt-8">
+                    <h2 className="text-lg font-semibold text-slate-900 group-hover:text-blue-600 transition">
+                      {newspaper.name}
+                    </h2>
+
+                    {newspaper.region && (
+                      <p className="mt-1 text-sm text-slate-600">{newspaper.region}</p>
+                    )}
+
+                    {newspaper.description && (
+                      <p className="mt-3 line-clamp-2 text-sm text-slate-600">{newspaper.description}</p>
+                    )}
+
+                    <div className="mt-4 flex items-center gap-4 text-xs text-slate-500">
+                      <div className="flex items-center gap-1">
+                        <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span>2.4K subscribers</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                        </svg>
+                        <span>4.8</span>
+                      </div>
                     </div>
-                  ) : (
-                    <div className="mb-4 flex h-20 items-center justify-center rounded-lg bg-slate-50 border border-slate-100">
-                      <span className="text-sm font-semibold text-slate-500">{newspaper.name.slice(0, 2).toUpperCase()}</span>
-                    </div>
-                  )}
-
-                  <h2 className="text-lg font-semibold text-slate-900 group-hover:text-blue-600 transition">
-                    {newspaper.name}
-                  </h2>
-
-                  {newspaper.region && (
-                    <p className="mt-2 text-sm text-slate-600">{newspaper.region}</p>
-                  )}
-
-                  {newspaper.description && (
-                    <p className="mt-3 line-clamp-2 text-sm text-slate-600">{newspaper.description}</p>
-                  )}
+                  </div>
                 </Link>
               );
             })}
