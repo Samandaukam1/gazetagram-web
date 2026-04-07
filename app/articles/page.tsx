@@ -1,11 +1,13 @@
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import { readingTime } from "@/lib/readingTime";
 
 type Article = {
   id: string;
   slug: string;
   title: string;
   summary: string | null;
+  content: string | null;
   created_at: string | null;
   newspaper_id: string | null;
 };
@@ -13,7 +15,7 @@ type Article = {
 async function getArticles() {
   const { data, error } = await supabase
     .from("articles")
-    .select("id,slug,title,summary,created_at,newspaper_id")
+    .select("id,slug,title,summary,content,created_at,newspaper_id")
     .order("created_at", { ascending: false })
     .limit(50);
 
@@ -69,6 +71,7 @@ export default async function ArticlesPage() {
                   {article.title}
                 </h2>
                 <p className="mt-2 text-slate-600">{article.summary ?? "No summary available."}</p>
+                <p className="mt-3 text-xs text-slate-500">{readingTime(article.content ?? "")}</p>
               </div>
               <div className="text-right text-sm text-slate-500">
                 <p>{article.newspaper_id ?? "No newspaper id"}</p>

@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import { supabase } from "@/lib/supabase";
 import ShareButton from "@/components/ShareButton";
+import { readingTime } from "@/lib/readingTime";
 
 type Article = {
   id: string;
@@ -103,20 +104,18 @@ export default async function ArticleDetailPage({
       <div className="mx-auto max-w-3xl space-y-8 rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
         <div className="space-y-4">
           <p className="text-sm uppercase tracking-[0.2em] text-slate-500">Article</p>
-          <div className="flex items-start justify-between gap-4">
-            <h1 className="text-4xl font-bold leading-tight text-slate-900">{article.title}</h1>
-            <ShareButton url={`/article/${article.slug}`} title={article.title} />
-          </div>
-          <p className="text-base text-slate-600">{article.summary ?? "No summary available."}</p>
-          <p className="text-sm text-slate-500">
-            {article.created_at
-              ? new Date(article.created_at).toLocaleDateString(undefined, {
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <h1 className="text-4xl font-bold leading-tight text-slate-900">{article.title}</h1>
+              <p className="mt-3 text-xs text-slate-500">{article.created_at ? new Date(article.created_at).toLocaleDateString(undefined, {
                   year: "numeric",
                   month: "short",
                   day: "numeric",
-                })
-              : "Date unavailable"}
-          </p>
+                }) : "Date unavailable"} • {readingTime(article.content ?? "")}</p>
+            </div>
+            <ShareButton url={`/article/${article.slug}`} title={article.title} />
+          </div>
+          <p className="text-base text-slate-600">{article.summary ?? "No summary available."}</p>
         </div>
 
         {article.main_image_url ? (
