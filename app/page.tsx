@@ -34,12 +34,6 @@ async function getNewspapers() {
     .select("id,slug,name,logo_url,banner_url,region")
     .limit(6);
 
-  console.log("getNewspapers result:", {
-    count: data?.length ?? 0,
-    error: error ? { message: error.message, code: error.code } : null,
-    sample: data?.slice(0, 3),
-  });
-
   return { data, error };
 }
 
@@ -153,11 +147,6 @@ export default async function Home() {
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {newspapers.map((newspaper) => {
                 if (!newspaper.slug) {
-                  console.log("Newspaper missing slug in homepage cards:", {
-                    id: newspaper.id,
-                    name: newspaper.name,
-                  });
-
                   return (
                     <div
                       key={newspaper.id}
@@ -201,30 +190,10 @@ export default async function Home() {
                         {newspaper.region && (
                           <p className="mt-1 text-sm text-slate-600">{newspaper.region}</p>
                         )}
-                        <div className="mt-4 flex items-center gap-4 text-xs text-slate-500">
-                          <div className="flex items-center gap-1">
-                            <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                              <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            <span>2.4K subscribers</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                            </svg>
-                            <span>4.8</span>
-                          </div>
-                        </div>
-                        <p className="mt-4 text-xs text-amber-600">Missing slug</p>
                       </div>
                     </div>
                   );
                 }
-
-                console.log("Newspaper homepage link source:", {
-                  slug: newspaper.slug,
-                  name: newspaper.name,
-                });
 
                 return (
                   <Link
@@ -270,20 +239,6 @@ export default async function Home() {
                       {newspaper.region && (
                         <p className="mt-1 text-sm text-slate-600">{newspaper.region}</p>
                       )}
-                      <div className="mt-4 flex items-center gap-4 text-xs text-slate-500">
-                        <div className="flex items-center gap-1">
-                          <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                          </svg>
-                          <span>2.4K subscribers</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                          </svg>
-                          <span>4.8</span>
-                        </div>
-                      </div>
                     </div>
                   </Link>
                 );

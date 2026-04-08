@@ -15,6 +15,17 @@ type Article = {
   main_image_url: string | null;
   newspaper_id: string | null;
   category: string | null;
+  author_name: string | null;
+  author_role: string | null;
+  author_bio: string | null;
+  author_image_url: string | null;
+};
+
+type NewspaperIdentity = {
+  id: string;
+  name: string;
+  logo_url: string | null;
+  slug: string;
 };
 
 type RelatedArticle = {
@@ -28,11 +39,21 @@ type RelatedArticle = {
 async function getArticle(slug: string) {
   const { data, error } = await supabase
     .from("articles")
-    .select("id,slug,title,summary,content,created_at,main_image_url,newspaper_id,category")
+    .select("id,slug,title,summary,content,created_at,main_image_url,newspaper_id,category,author_name,author_role,author_bio,author_image_url")
     .eq("slug", slug)
     .single();
 
   return { data: data as Article | null, error };
+}
+
+async function getNewspaperById(id: string) {
+  const { data, error } = await supabase
+    .from("newspapers")
+    .select("id,name,logo_url,slug")
+    .eq("id", id)
+    .single();
+
+  return { data: data as NewspaperIdentity | null, error };
 }
 
 async function getRelatedArticles(article: Article) {
@@ -142,6 +163,12 @@ export default async function ArticleDetailPage({
     notFound();
   }
 
+  const articleNewspaperResult = article.newspaper_id
+    ? await getNewspaperById(article.newspaper_id)
+    : ({ data: null, error: null } as { data: null; error: null });
+  const articleNewspaper = articleNewspaperResult.data;
+
+  const articleUrl = `https://gazetagram-web.vercel.app/article/${article.slug}`;
   const relatedArticles = await getRelatedArticles(article);
 
   return (
@@ -177,19 +204,43 @@ export default async function ArticleDetailPage({
           <p className="mt-6 text-xl text-slate-600">
             {article.summary ?? "No summary available."}
           </p>
-          <div className="mt-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div className="flex flex-wrap items-center gap-4 text-sm text-slate-600">
-              <span>
-                {article.created_at ? new Date(article.created_at).toLocaleDateString(undefined, {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                }) : "Date unavailable"}
-              </span>
-              <span className="text-slate-400">•</span>
-              <span>{readingTime(article.content ?? "")}</span>
+          <div className="mt-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            {articleNewspaper ? (
+              <div className="flex items-center gap-4">
+                {articleNewspaper.logo_url ? (
+                  <div className="h-14 w-14 overflow-hidden rounded-full border border-slate-200 bg-slate-100">
+                    <img
+                      src={articleNewspaper.logo_url}
+                      alt={articleNewspaper.name}
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+                ) : (
+                  <div className="flex h-14 w-14 items-center justify-center rounded-full bg-slate-100 text-sm font-semibold uppercase text-slate-500">
+                    {articleNewspaper.name.slice(0, 2)}
+                  </div>
+                )}
+                <div>
+                  <p className="text-base font-semibold text-slate-900">{articleNewspaper.name}</p>
+                  <p className="text-sm text-slate-500">Newspaper</p>
+                </div>
+              </div>
+            ) : null}
+
+            <div className="flex flex-col items-start gap-3 sm:items-end">
+              <div className="flex flex-wrap items-center gap-4 text-sm text-slate-600">
+                <span>
+                  {article.created_at ? new Date(article.created_at).toLocaleDateString(undefined, {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  }) : "Date unavailable"}
+                </span>
+                <span className="text-slate-400">•</span>
+                <span>{readingTime(article.content ?? "")}</span>
+              </div>
+              <ShareButton url={articleUrl} title={article.title} />
             </div>
-            <ShareButton url={`/article/${article.slug}`} title={article.title} />
           </div>
         </div>
       </div>
@@ -223,6 +274,40 @@ export default async function ArticleDetailPage({
           </div>
         </article>
       </div>
+
+      {(article.author_name || article.author_role || article.author_bio || article.author_image_url) && (
+        <section className="border-t border-slate-200 bg-white px-4 sm:px-6 lg:px-8 py-10">
+          <div className="container-md">
+            <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-4">Maqola muallifi</p>
+            <div className="flex flex-col gap-6 rounded-3xl border border-slate-200 bg-slate-50 p-6 sm:flex-row sm:items-center">
+              <div className="flex-shrink-0">
+                {article.author_image_url ? (
+                  <img
+                    src={article.author_image_url}
+                    alt={article.author_name ?? "Author"}
+                    className="h-20 w-20 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="flex h-20 w-20 items-center justify-center rounded-full bg-slate-200 text-sm font-semibold uppercase text-slate-500">
+                    {article.author_name ? article.author_name.slice(0, 2) : "A"}
+                  </div>
+                )}
+              </div>
+              <div className="min-w-0 flex-1">
+                {article.author_name && (
+                  <p className="text-lg font-semibold text-slate-900">{article.author_name}</p>
+                )}
+                {article.author_role && (
+                  <p className="mt-1 text-sm text-slate-600">{article.author_role}</p>
+                )}
+                {article.author_bio && (
+                  <p className="mt-4 text-sm leading-7 text-slate-700">{article.author_bio}</p>
+                )}
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Related Articles Section */}
       {relatedArticles.length > 0 && (
