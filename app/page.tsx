@@ -90,28 +90,35 @@ export default async function Home() {
             </div>
           ) : (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {articles.map((article) => (
-                <Link
-                  key={article.id}
-                  href={`/article/${article.slug}`}
-                  className="group rounded-xl border border-slate-200 bg-white p-6 shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-200"
-                >
-                  <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-                    Article
-                  </p>
-                  <h3 className="mt-3 text-lg font-semibold text-slate-900 group-hover:text-blue-600 transition line-clamp-2">
-                    {article.title}
-                  </h3>
-                  <p className="mt-3 text-sm text-slate-600 line-clamp-2">
-                    {article.summary ?? "No summary available"}
-                  </p>
-                  <p className="mt-4 text-xs text-slate-500">
-                    {article.created_at
-                      ? new Date(article.created_at).toLocaleDateString()
-                      : "Unknown date"}
-                  </p>
-                </Link>
-              ))}
+              {articles.map((article) => {
+                if (!article.slug) {
+                  console.warn(`[Homepage Articles] Skipping article with missing slug: id=${article.id}, title=${article.title}`);
+                  return null;
+                }
+
+                return (
+                  <Link
+                    key={article.id}
+                    href={`/article/${article.slug}`}
+                    className="group rounded-xl border border-slate-200 bg-white p-6 shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-200"
+                  >
+                    <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                      Article
+                    </p>
+                    <h3 className="mt-3 text-lg font-semibold text-slate-900 group-hover:text-blue-600 transition line-clamp-2">
+                      {article.title}
+                    </h3>
+                    <p className="mt-3 text-sm text-slate-600 line-clamp-2">
+                      {article.summary ?? "No summary available"}
+                    </p>
+                    <p className="mt-4 text-xs text-slate-500">
+                      {article.created_at
+                        ? new Date(article.created_at).toLocaleDateString()
+                        : "Unknown date"}
+                    </p>
+                  </Link>
+                );
+              })}
             </div>
           )}
 

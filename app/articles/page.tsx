@@ -63,39 +63,46 @@ export default async function ArticlesPage() {
         </div>
 
         <div className="space-y-4">
-          {articles.map((article) => (
-            <Link
-              key={article.id}
-              href={`/article/${article.slug}`}
-              className="group block rounded-xl border border-slate-200 bg-white p-6 shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-200"
-              aria-label={`View article: ${article.title}`}
-            >
-              <div className="flex flex-col gap-3">
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-                    Article
+          {articles.map((article) => {
+            if (!article.slug) {
+              console.warn(`[Article List] Skipping article with missing slug: id=${article.id}, title=${article.title}`);
+              return null;
+            }
+
+            return (
+              <Link
+                key={article.id}
+                href={`/article/${article.slug}`}
+                className="group block rounded-xl border border-slate-200 bg-white p-6 shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-200"
+                aria-label={`View article: ${article.title}`}
+              >
+                <div className="flex flex-col gap-3">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                      Article
+                    </p>
+                    <h2 className="mt-2 text-2xl font-semibold text-slate-900 group-hover:text-blue-600 transition">
+                      {article.title}
+                    </h2>
+                  </div>
+                  <p className="text-slate-600 line-clamp-2">
+                    {article.summary ?? "No summary available"}
                   </p>
-                  <h2 className="mt-2 text-2xl font-semibold text-slate-900 group-hover:text-blue-600 transition">
-                    {article.title}
-                  </h2>
+                  <div className="flex flex-wrap items-center gap-4 text-sm text-slate-500">
+                    <span>
+                      {article.created_at ? new Date(article.created_at).toLocaleDateString(undefined, {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                      }) : "Unknown date"}
+                    </span>
+                    <span>•</span>
+                    <span>{readingTime(article.content ?? "")}</span>
+                  </div>
                 </div>
-                <p className="text-slate-600 line-clamp-2">
-                  {article.summary ?? "No summary available"}
-                </p>
-                <div className="flex flex-wrap items-center gap-4 text-sm text-slate-500">
-                  <span>
-                    {article.created_at ? new Date(article.created_at).toLocaleDateString(undefined, {
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric",
-                    }) : "Unknown date"}
-                  </span>
-                  <span>•</span>
-                  <span>{readingTime(article.content ?? "")}</span>
-                </div>
-              </div>
-            </Link>
-          ))}
+              </Link>
+            );
+          })}
         </div>
       </div>
     </main>

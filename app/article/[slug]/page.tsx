@@ -37,11 +37,23 @@ type RelatedArticle = {
 };
 
 async function getArticle(slug: string) {
+  if (!slug || slug === "undefined" || slug === "null") {
+    return { data: null, error: new Error("Invalid slug provided") as any };
+  }
+
   const { data, error } = await supabase
     .from("articles")
     .select("id,slug,title,summary,content,created_at,main_image_url,newspaper_id,category,author_name,author_role,author_bio,author_image_url")
     .eq("slug", slug)
     .single();
+
+  if (error) {
+    console.error(`[Article Fetch Error] slug=${slug}:`, error.message);
+  } else if (data) {
+    console.log(`[Article Loaded] slug=${slug}, id=${data.id}, has_content=${!!data.content}`);
+  } else {
+    console.warn(`[Article Not Found] slug=${slug}`);
+  }
 
   return { data: data as Article | null, error };
 }
@@ -110,7 +122,8 @@ export async function generateMetadata({
   }
 
   const title = article.title;
-  const description = article.summary ?? "Read this article on Gazetagram Web.";
+  const description = article.summary ?? "Read the latest news on Gazetagram.";
+  const canonicalUrl = `https://gazetagram.uz/article/${slug}`;
 
   return {
     title,
@@ -118,7 +131,11 @@ export async function generateMetadata({
     openGraph: {
       title,
       description,
+      url: canonicalUrl,
       images: article.main_image_url ? [{ url: article.main_image_url }] : [],
+    },
+    alternates: {
+      canonical: canonicalUrl,
     },
   };
 }
@@ -144,7 +161,8 @@ export default async function ArticleDetailPage({
   const { data: article, error } = await getArticle(slug);
 
   if (error) {
-    if (error.code === "PGRST116" || error.message.includes("No rows found")) {
+    console.error(`[Article Page Error] slug=${slug}`, error);
+    if (error.code === "PGRST116" || error.message.includes("No rows found") || error.message.includes("Invalid slug")) {
       notFound();
     }
 
@@ -160,15 +178,18 @@ export default async function ArticleDetailPage({
   }
 
   if (!article) {
+    console.warn(`[Article Not Found on Page] slug=${slug}`);
     notFound();
   }
+
+  console.log(`[Article Page Rendered] title=${article.title}, has_content=${!!article.content}, has_newspaper=${!!article.newspaper_id}`);
 
   const articleNewspaperResult = article.newspaper_id
     ? await getNewspaperById(article.newspaper_id)
     : ({ data: null, error: null } as { data: null; error: null });
   const articleNewspaper = articleNewspaperResult.data;
 
-  const articleUrl = `https://gazetagram-web.vercel.app/article/${article.slug}`;
+  const articleUrl = `https://gazetagram.uz/article/${article.slug}`;
   const relatedArticles = await getRelatedArticles(article);
 
   return (
