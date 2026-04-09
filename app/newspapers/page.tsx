@@ -1,16 +1,39 @@
-import { supabase } from "@/lib/supabase";
 import { MultilingualNewspaper } from "@/lib/localization";
+import { safeSelectQuery } from "@/lib/supabase-safe";
 import NewspapersPageContent from "@/components/NewspapersPageContent";
 
 type Newspaper = MultilingualNewspaper;
 
-async function getNewspapers() {
-  const { data, error } = await supabase
-    .from("newspapers")
-    .select("id,slug,name,name_uz_cy,name_ru,name_en,logo_url,banner_url,region,region_uz_cy,region_ru,region_en,description,description_uz_cy,description_ru,description_en,founded_year")
-    .order("name", { ascending: true });
+const newspaperRequiredFields = [
+  "id",
+  "slug",
+  "name",
+  "logo_url",
+  "banner_url",
+  "region",
+  "description",
+  "founded_year",
+];
 
-  return { data, error };
+const newspaperOptionalFields = [
+  "name_uz_cy",
+  "name_ru",
+  "name_en",
+  "region_uz_cy",
+  "region_ru",
+  "region_en",
+  "description_uz_cy",
+  "description_ru",
+  "description_en",
+];
+
+async function getNewspapers() {
+  return safeSelectQuery<Newspaper[]>(
+    "newspapers",
+    newspaperRequiredFields,
+    newspaperOptionalFields,
+    (query) => query.order("name", { ascending: true })
+  );
 }
 
 export default async function NewspapersPage() {
