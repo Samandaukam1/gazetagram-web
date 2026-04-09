@@ -8,6 +8,7 @@ type Article = {
   title: string;
   summary: string | null;
   content: string | null;
+  main_image_url: string | null;
   created_at: string | null;
   newspaper_id: string | null;
 };
@@ -15,7 +16,7 @@ type Article = {
 async function getArticles() {
   const { data, error } = await supabase
     .from("articles")
-    .select("id,slug,title,summary,content,created_at,newspaper_id")
+    .select("id,slug,title,summary,content,main_image_url,created_at,newspaper_id")
     .order("created_at", { ascending: false })
     .limit(50);
 
@@ -27,14 +28,18 @@ export default async function ArticlesPage() {
 
   if (error) {
     return (
-      <main className="min-h-screen px-4 py-12 sm:px-6 lg:px-8 bg-slate-50">
-        <div className="container-lg">
-          <h1 className="text-4xl font-bold text-slate-900">Articles</h1>
-          <p className="mt-6 text-lg text-red-600">Unable to load articles</p>
-          <p className="mt-2 text-slate-600">{error.message}</p>
-          <Link href="/" className="mt-6 inline-block text-blue-600 hover:text-blue-700 font-medium">
-            ← Back to home
-          </Link>
+      <main className="min-h-screen bg-white">
+        <div className="container-editorial py-20">
+          <div className="max-w-2xl mx-auto text-center">
+            <h1 className="heading-xl text-neutral-900 mb-4">Maqolalar</h1>
+            <div className="rounded-2xl border border-red-200 bg-red-50 p-8">
+              <p className="text-base sm:text-lg font-semibold text-red-800 mb-2">Maqolalarni yuklab bo'lmadi</p>
+              <p className="text-red-700">{error.message}</p>
+            </div>
+            <Link href="/" className="mt-8 btn-ghost text-[#1FC3D6] hover:text-[#0d9488]">
+              ← Bosh sahifaga qaytish
+            </Link>
+          </div>
         </div>
       </main>
     );
@@ -42,68 +47,171 @@ export default async function ArticlesPage() {
 
   if (!articles || articles.length === 0) {
     return (
-      <main className="min-h-screen px-4 py-12 sm:px-6 lg:px-8 bg-slate-50">
-        <div className="container-lg">
-          <h1 className="text-4xl font-bold text-slate-900">Articles</h1>
-          <p className="mt-6 text-lg text-slate-600">No articles found yet</p>
-          <Link href="/" className="mt-6 inline-block text-blue-600 hover:text-blue-700 font-medium">
-            ← Back to home
-          </Link>
+      <main className="min-h-screen bg-white">
+        <div className="container-editorial py-20">
+          <div className="max-w-2xl mx-auto text-center">
+            <h1 className="heading-xl text-neutral-900 mb-4">Maqolalar</h1>
+            <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-12">
+              <p className="text-neutral-600">Hozircha maqolalar mavjud emas</p>
+            </div>
+            <Link href="/" className="mt-8 btn-ghost text-[#1FC3D6] hover:text-[#0d9488]">
+              ← Bosh sahifaga qaytish
+            </Link>
+          </div>
         </div>
       </main>
     );
   }
 
+  // Separate featured article (first one) from the rest
+  const featuredArticle = articles[0];
+  const regularArticles = articles.slice(1);
+
   return (
-    <main className="min-h-screen px-4 py-12 sm:py-16 sm:px-6 lg:px-8 bg-slate-50">
-      <div className="container-lg">
-        <div className="mb-12">
-          <h1 className="text-4xl sm:text-5xl font-bold text-slate-900">Articles</h1>
-          <p className="mt-4 text-lg text-slate-600">Explore all the latest stories and news</p>
+    <main className="min-h-screen bg-white">
+      {/* Header Section */}
+      <section className="border-b border-neutral-200/50 bg-neutral-50/50">
+        <div className="container-editorial py-16">
+          <div className="max-w-3xl">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-neutral-900 mb-6">Maqolalar</h1>
+            <p className="text-xl text-neutral-600 leading-relaxed">
+              O'zbekistonning eng ishonchli manbalaridan so'nggi yangiliklar va hikoyalarni kashf qiling
+            </p>
+          </div>
         </div>
+      </section>
 
-        <div className="space-y-4">
-          {articles.map((article) => {
-            if (!article.slug) {
-              console.warn(`[Article List] Skipping article with missing slug: id=${article.id}, title=${article.title}`);
-              return null;
-            }
+      <div className="container-editorial py-16">
+        {/* Featured Article */}
+        {featuredArticle && featuredArticle.slug && (
+          <section className="mb-20">
+            <div className="mb-8">
+              <span className="badge-premium">Tanlangan maqola</span>
+            </div>
 
-            return (
-              <Link
-                key={article.id}
-                href={`/article/${article.slug}`}
-                className="group block rounded-xl border border-slate-200 bg-white p-6 shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-200"
-                aria-label={`View article: ${article.title}`}
-              >
-                <div className="flex flex-col gap-3">
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-                      Article
-                    </p>
-                    <h2 className="mt-2 text-2xl font-semibold text-slate-900 group-hover:text-blue-600 transition">
-                      {article.title}
-                    </h2>
+            <Link
+              href={`/article/${featuredArticle.slug}`}
+              className="group block"
+            >
+              <article className="card-premium-lg overflow-hidden">
+                {featuredArticle.main_image_url && (
+                  <div className="relative h-80 md:h-96 overflow-hidden">
+                    <img
+                      src={featuredArticle.main_image_url}
+                      alt={featuredArticle.title}
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
                   </div>
-                  <p className="text-slate-600 line-clamp-2">
-                    {article.summary ?? "No summary available"}
+                )}
+
+                <div className="p-8 md:p-12">
+                  <h2 className="heading-xl text-neutral-900 group-hover:text-[#1FC3D6] transition-premium mb-4 leading-tight">
+                    {featuredArticle.title}
+                  </h2>
+
+                  <p className="text-lg text-neutral-600 mb-6 leading-relaxed line-clamp-3">
+                    {featuredArticle.summary ?? "Qisqacha mazmun mavjud emas"}
                   </p>
-                  <div className="flex flex-wrap items-center gap-4 text-sm text-slate-500">
-                    <span>
-                      {article.created_at ? new Date(article.created_at).toLocaleDateString(undefined, {
-                        year: "numeric",
-                        month: "short",
-                        day: "numeric",
-                      }) : "Unknown date"}
-                    </span>
-                    <span>•</span>
-                    <span>{readingTime(article.content ?? "")}</span>
+
+                  <div className="flex flex-wrap items-center gap-6 text-sm text-neutral-500">
+                    <time className="font-medium">
+                      {featuredArticle.created_at
+                        ? new Date(featuredArticle.created_at).toLocaleDateString('uz-UZ', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                          })
+                        : "Noma'lum sana"}
+                    </time>
+                    <span className="text-neutral-300">•</span>
+                    <span className="font-medium">{readingTime(featuredArticle.content ?? "")}</span>
+                  </div>
+
+                  <div className="mt-8 flex items-center text-[#1FC3D6] font-semibold">
+                    <span>To'liq o'qish</span>
+                    <svg className="w-5 h-5 ml-2 transition-transform duration-200 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
                   </div>
                 </div>
-              </Link>
-            );
-          })}
-        </div>
+              </article>
+            </Link>
+          </section>
+        )}
+
+        {/* Regular Articles Grid */}
+        <section>
+          <div className="mb-12">
+            <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight text-neutral-900">Barcha maqolalar</h2>
+            <p className="mt-2 text-neutral-600">So'nggi yangiliklar va hikoyalar</p>
+          </div>
+
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+            {regularArticles.map((article) => {
+              if (!article.slug) {
+                console.warn(`[Article List] Skipping article with missing slug: id=${article.id}, title=${article.title}`);
+                return null;
+              }
+
+              return (
+                <Link
+                  key={article.id}
+                  href={`/article/${article.slug}`}
+                  className="group block"
+                  aria-label={`View article: ${article.title}`}
+                >
+                  <article className="card-premium overflow-hidden hover-lift">
+                    {article.main_image_url && (
+                      <div className="relative h-48 overflow-hidden">
+                        <img
+                          src={article.main_image_url}
+                          alt={article.title}
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                      </div>
+                    )}
+
+                    <div className="p-6">
+                      <div className="mb-3">
+                        <span className="badge-secondary">Maqola</span>
+                      </div>
+
+                      <h3 className="text-base sm:text-lg font-semibold text-neutral-900 group-hover:text-[#1FC3D6] transition-premium mb-3 leading-tight line-clamp-2">
+                        {article.title}
+                      </h3>
+
+                      <p className="text-neutral-600 mb-4 line-clamp-2 leading-relaxed">
+                        {article.summary ?? "Qisqacha mazmun mavjud emas"}
+                      </p>
+
+                      <div className="flex items-center justify-between text-sm text-neutral-500">
+                        <time className="font-medium">
+                          {article.created_at
+                            ? new Date(article.created_at).toLocaleDateString('uz-UZ', {
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric'
+                              })
+                            : "Noma'lum sana"}
+                        </time>
+                        <span className="font-medium">{readingTime(article.content ?? "")}</span>
+                      </div>
+
+                      <div className="mt-4 flex items-center text-xs text-[#1FC3D6] font-semibold">
+                        <span>O'qish</span>
+                        <svg className="w-4 h-4 ml-1 transition-transform duration-200 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </div>
+                    </div>
+                  </article>
+                </Link>
+              );
+            })}
+          </div>
+        </section>
       </div>
     </main>
   );

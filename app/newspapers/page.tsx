@@ -24,33 +24,40 @@ export default async function NewspapersPage() {
   const { data: newspapers, error } = await getNewspapers();
 
   return (
-    <main className="min-h-screen px-4 py-12 sm:py-16 sm:px-6 lg:px-8 bg-slate-50">
-      <div className="container-lg">
-        <div className="mb-12">
-          <h1 className="text-4xl sm:text-5xl font-bold text-slate-900">Newspapers</h1>
-          <p className="mt-4 text-lg text-slate-600">Browse news sources across Uzbekistan</p>
+    <main className="min-h-screen bg-white">
+      {/* Header Section */}
+      <section className="border-b border-neutral-200/50 bg-neutral-50/50">
+        <div className="container-editorial py-16">
+          <div className="max-w-3xl">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-neutral-900 mb-6">Gazetalar</h1>
+            <p className="text-xl text-neutral-600 leading-relaxed">
+              O'zbekistonning eng ishonchli gazeta va yangilik manbalarini kashf qiling
+            </p>
+          </div>
         </div>
+      </section>
 
+      <div className="container-editorial py-16">
         {error ? (
-          <div className="rounded-lg border border-red-200 bg-red-50 p-8">
-            <p className="font-medium text-red-800">Unable to load newspapers</p>
-            <p className="mt-2 text-slate-600">{error.message}</p>
+          <div className="rounded-2xl border border-red-200 bg-red-50 p-12 text-center">
+            <p className="text-base sm:text-lg font-semibold text-red-800 mb-2">Gazetalarni yuklab bo'lmadi</p>
+            <p className="text-red-700">{error.message}</p>
           </div>
         ) : !newspapers || newspapers.length === 0 ? (
-          <div className="rounded-lg border border-slate-200 bg-white p-12 text-center">
-            <p className="text-slate-600">No newspapers available yet</p>
+          <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-12 text-center shadow-md">
+            <p className="text-neutral-600">Hozircha gazetalar mavjud emas</p>
           </div>
         ) : (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
             {newspapers.map((newspaper) => {
               if (!newspaper.slug) {
                 return (
                   <div
                     key={newspaper.id}
-                    className="relative rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden"
+                    className="card-premium overflow-hidden opacity-75"
                   >
                     {/* Banner */}
-                    <div className="h-32 bg-slate-200 rounded-t-xl">
+                    <div className="h-48 bg-gradient-to-br from-neutral-200 to-neutral-300 rounded-t-xl">
                       {newspaper.banner_url ? (
                         <img
                           src={newspaper.banner_url}
@@ -58,14 +65,14 @@ export default async function NewspapersPage() {
                           className="h-full w-full object-cover rounded-t-xl"
                         />
                       ) : (
-                        <div className="h-full w-full bg-gradient-to-br from-slate-200 to-slate-300 rounded-t-xl" />
+                        <div className="h-full w-full bg-gradient-to-br from-neutral-200 to-neutral-300 rounded-t-xl" />
                       )}
                     </div>
 
                     {/* Logo - Overlapping */}
-                    <div className="absolute top-20 left-4">
+                    <div className="absolute top-32 left-6">
                       {newspaper.logo_url ? (
-                        <div className="h-16 w-16 rounded-full border-4 border-white bg-white shadow-lg overflow-hidden">
+                        <div className="h-20 w-20 rounded-full border-4 border-white bg-white shadow-md overflow-hidden">
                           <img
                             src={newspaper.logo_url}
                             alt={newspaper.name}
@@ -73,8 +80,8 @@ export default async function NewspapersPage() {
                           />
                         </div>
                       ) : (
-                        <div className="h-16 w-16 rounded-full border-4 border-white bg-slate-100 shadow-lg flex items-center justify-center">
-                          <span className="text-sm font-semibold text-slate-500">
+                        <div className="h-20 w-20 rounded-full border-4 border-white bg-neutral-100 shadow-md flex items-center justify-center">
+                          <span className="text-sm font-bold text-neutral-500">
                             {newspaper.name.slice(0, 2).toUpperCase()}
                           </span>
                         </div>
@@ -82,16 +89,20 @@ export default async function NewspapersPage() {
                     </div>
 
                     {/* Content */}
-                    <div className="p-6 pt-8">
-                      <h2 className="text-lg font-semibold text-slate-900">{newspaper.name}</h2>
+                    <div className="p-6 pt-16">
+                      <h2 className="text-lg sm:text-xl lg:text-2xl font-semibold text-neutral-900 mb-2">{newspaper.name}</h2>
 
                       {newspaper.region && (
-                        <p className="mt-1 text-sm text-slate-600">{newspaper.region}</p>
+                        <p className="text-sm text-neutral-600 font-medium mb-3">{newspaper.region}</p>
                       )}
 
                       {newspaper.description && (
-                        <p className="mt-3 line-clamp-2 text-sm text-slate-600">{newspaper.description}</p>
+                        <p className="text-neutral-600 line-clamp-3 leading-relaxed mb-4">{newspaper.description}</p>
                       )}
+
+                      <div className="text-xs text-neutral-500 font-medium">
+                        Gazeta mavjud emas
+                      </div>
                     </div>
                   </div>
                 );
@@ -101,54 +112,63 @@ export default async function NewspapersPage() {
                 <Link
                   key={newspaper.id}
                   href={`/newspaper/${newspaper.slug}`}
-                  className="group relative rounded-xl border border-slate-200 bg-white shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-200 overflow-hidden block"
+                  className="group block"
                 >
-                  {/* Banner */}
-                  <div className="h-32 bg-slate-200 rounded-t-xl">
-                    {newspaper.banner_url ? (
-                      <img
-                        src={newspaper.banner_url}
-                        alt={newspaper.name}
-                        className="h-full w-full object-cover rounded-t-xl"
-                      />
-                    ) : (
-                      <div className="h-full w-full bg-gradient-to-br from-slate-200 to-slate-300 rounded-t-xl" />
-                    )}
-                  </div>
-
-                  {/* Logo - Overlapping */}
-                  <div className="absolute top-20 left-4">
-                    {newspaper.logo_url ? (
-                      <div className="h-16 w-16 rounded-full border-4 border-white bg-white shadow-lg overflow-hidden">
+                  <article className="card-premium overflow-hidden hover-lift">
+                    {/* Banner */}
+                    <div className="h-48 bg-gradient-to-br from-neutral-200 to-neutral-300 rounded-t-xl overflow-hidden">
+                      {newspaper.banner_url ? (
                         <img
-                          src={newspaper.logo_url}
+                          src={newspaper.banner_url}
                           alt={newspaper.name}
-                          className="h-full w-full object-cover"
+                          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                         />
+                      ) : (
+                        <div className="h-full w-full bg-gradient-to-br from-[#1FC3D6]/20 to-[#0d9488]/20 rounded-t-xl" />
+                      )}
+                    </div>
+
+                    {/* Logo - Overlapping */}
+                    <div className="absolute top-32 left-6">
+                      {newspaper.logo_url ? (
+                        <div className="h-20 w-20 rounded-full border-4 border-white bg-white shadow-md overflow-hidden transition-transform duration-300 group-hover:scale-110">
+                          <img
+                            src={newspaper.logo_url}
+                            alt={newspaper.name}
+                            className="h-full w-full object-cover"
+                          />
+                        </div>
+                      ) : (
+                        <div className="h-20 w-20 rounded-full border-4 border-white bg-neutral-100 shadow-md flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
+                          <span className="text-sm font-bold text-neutral-500">
+                            {newspaper.name.slice(0, 2).toUpperCase()}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Content */}
+                    <div className="p-6 pt-16">
+                      <h2 className="text-lg sm:text-xl lg:text-2xl font-semibold text-neutral-900 group-hover:text-[#1FC3D6] transition-premium mb-2">
+                        {newspaper.name}
+                      </h2>
+
+                      {newspaper.region && (
+                        <p className="text-sm text-neutral-600 font-medium mb-3">{newspaper.region}</p>
+                      )}
+
+                      {newspaper.description && (
+                        <p className="text-neutral-600 line-clamp-3 leading-relaxed mb-4">{newspaper.description}</p>
+                      )}
+
+                      <div className="flex items-center text-xs text-[#1FC3D6] font-semibold">
+                        <span>Kashf qilish</span>
+                        <svg className="w-4 h-4 ml-1 transition-transform duration-200 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
                       </div>
-                    ) : (
-                      <div className="h-16 w-16 rounded-full border-4 border-white bg-slate-100 shadow-lg flex items-center justify-center">
-                        <span className="text-sm font-semibold text-slate-500">
-                          {newspaper.name.slice(0, 2).toUpperCase()}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Content */}
-                  <div className="p-6 pt-8">
-                    <h2 className="text-lg font-semibold text-slate-900 group-hover:text-blue-600 transition">
-                      {newspaper.name}
-                    </h2>
-
-                    {newspaper.region && (
-                      <p className="mt-1 text-sm text-slate-600">{newspaper.region}</p>
-                    )}
-
-                    {newspaper.description && (
-                      <p className="mt-3 line-clamp-2 text-sm text-slate-600">{newspaper.description}</p>
-                    )}
-                  </div>
+                    </div>
+                  </article>
                 </Link>
               );
             })}

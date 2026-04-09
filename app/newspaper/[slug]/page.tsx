@@ -19,6 +19,7 @@ type Article = {
   title: string;
   summary: string | null;
   created_at: string | null;
+  main_image_url: string | null;
 };
 
 async function getNewspaper(slug: string) {
@@ -34,7 +35,7 @@ async function getNewspaper(slug: string) {
 async function getNewspaperArticles(newspaperId: string) {
   const { data, error } = await supabase
     .from("articles")
-    .select("id,slug,title,summary,created_at")
+    .select("id,slug,title,summary,created_at,main_image_url")
     .eq("newspaper_id", newspaperId)
     .order("created_at", { ascending: false })
     .limit(10);
@@ -51,13 +52,15 @@ export default async function NewspaperDetailPage({
 
   if (!slug || slug === "undefined") {
     return (
-      <main className="min-h-screen px-4 py-8 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-3xl rounded-lg border border-red-200 bg-red-50 p-6">
-          <h1 className="text-lg font-semibold text-red-800">Invalid newspaper slug</h1>
-          <p className="mt-2 text-red-700">The newspaper slug is missing or invalid.</p>
-          <Link href="/newspapers" className="mt-4 inline-block text-blue-600 hover:underline">
-            ← Back to newspapers
-          </Link>
+      <main className="min-h-screen bg-white">
+        <div className="container-editorial py-20">
+          <div className="max-w-2xl mx-auto text-center">
+            <h1 className="heading-xl text-neutral-900 mb-4">Noto'g'ri gazeta havolasi</h1>
+            <p className="text-neutral-600">Gazeta havolasi noto'g'ri yoki mavjud emas.</p>
+            <Link href="/newspapers" className="mt-8 btn-ghost text-[#1FC3D6] hover:text-[#0d9488]">
+              ← Gazetalarga qaytish
+            </Link>
+          </div>
         </div>
       </main>
     );
@@ -72,98 +75,148 @@ export default async function NewspaperDetailPage({
   const { data: articles } = await getNewspaperArticles(newspaper.id);
 
   return (
-    <main className="min-h-screen bg-slate-50">
-      {/* Banner */}
-      {newspaper.banner_url && (
-        <div className="h-64 sm:h-80 overflow-hidden bg-slate-300">
-          <img
-            src={newspaper.banner_url}
-            alt={newspaper.name}
-            className="h-full w-full object-cover"
-          />
+    <main className="min-h-screen bg-white">
+      {/* Premium Banner Section */}
+      <section className="relative min-h-screen flex items-end overflow-hidden">
+        {/* Background Banner */}
+        <div className="absolute inset-0">
+          {newspaper.banner_url ? (
+            <img
+              src={newspaper.banner_url}
+              alt={newspaper.name}
+              className="w-full h-full object-cover scale-105"
+            />
+          ) : (
+            <div className="w-full h-full bg-gradient-to-br from-[#1FC3D6]/20 to-[#0d9488]/20"></div>
+          )}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/20"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-transparent to-transparent"></div>
         </div>
-      )}
 
-      {/* Breadcrumb Navigation */}
-      <div className="border-b border-slate-200 bg-white px-4 sm:px-6 lg:px-8">
-        <nav className="container-lg py-4" aria-label="Breadcrumb">
-          <ol className="flex flex-wrap items-center gap-2 text-sm text-slate-600">
-            <li>
-              <Link href="/" className="hover:text-slate-900 transition">Home</Link>
-            </li>
-            <li className="text-slate-400">/</li>
-            <li>
-              <Link href="/newspapers" className="hover:text-slate-900 transition">Newspapers</Link>
-            </li>
-            <li className="text-slate-400">/</li>
-            <li className="font-medium text-slate-900 truncate" aria-current="page">
-              {newspaper.name}
-            </li>
-          </ol>
-        </nav>
-      </div>
+        {/* Content */}
+        <div className="relative z-10 container-editorial pb-20">
+          <div className="max-w-4xl">
+            {/* Breadcrumb */}
+            <nav className="mb-8" aria-label="Breadcrumb">
+              <ol className="flex flex-wrap items-center gap-2 text-sm text-neutral-300">
+                <li>
+                  <Link href="/" className="hover:text-white transition-smooth">Bosh sahifa</Link>
+                </li>
+                <li className="text-neutral-400">/</li>
+                <li>
+                  <Link href="/newspapers" className="hover:text-white transition-smooth">Gazetalar</Link>
+                </li>
+                <li className="text-neutral-400">/</li>
+                <li className="font-medium text-white truncate" aria-current="page">
+                  {newspaper.name}
+                </li>
+              </ol>
+            </nav>
 
-      {/* Header Section */}
-      <section className="border-b border-slate-200 bg-white px-4 py-12 sm:py-16 sm:px-6 lg:px-8">
-        <div className="container-lg">
-          {newspaper.logo_url && (
-            <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-xl bg-slate-50 border border-slate-200">
-              <img
-                src={newspaper.logo_url}
-                alt={newspaper.name}
-                className="h-full w-full object-contain p-2"
-              />
+            {/* Logo & Header */}
+            <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-8 mb-8">
+              <div className="flex-1">
+                {newspaper.logo_url && (
+                  <div className="mb-6">
+                    <div className="h-24 w-24 rounded-2xl border-4 border-white/30 bg-white/10 backdrop-blur-sm overflow-hidden shadow-md">
+                      <img
+                        src={newspaper.logo_url}
+                        alt={newspaper.name}
+                        className="h-full w-full object-contain p-3"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                <div className="mb-6">
+                  <span className="badge-premium bg-[#1FC3D6]/20 text-white border-white/30 mb-4">Gazeta</span>
+                  <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white mb-4 leading-tight">
+                    {newspaper.name}
+                  </h1>
+
+                  <div className="flex flex-wrap items-center gap-4 text-neutral-300">
+                    {newspaper.region && (
+                      <span className="font-medium">{newspaper.region}</span>
+                    )}
+                    {newspaper.founded_year && (
+                      <>
+                        <span className="text-neutral-400">•</span>
+                        <span>{newspaper.founded_year} yilda tashkil topgan</span>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                {newspaper.description && (
+                  <p className="text-xl text-neutral-200 leading-relaxed max-w-2xl">
+                    {newspaper.description}
+                  </p>
+                )}
+              </div>
             </div>
-          )}
-          <div className="mb-6">
-            <h1 className="text-4xl sm:text-5xl font-bold text-slate-900">{newspaper.name}</h1>
-            {newspaper.region && (
-              <p className="mt-3 text-lg text-slate-600">{newspaper.region}</p>
-            )}
-            {newspaper.founded_year && (
-              <p className="mt-2 text-sm text-slate-500">Founded {newspaper.founded_year}</p>
-            )}
           </div>
-          {newspaper.description && (
-            <p className="text-lg text-slate-700 max-w-3xl">{newspaper.description}</p>
-          )}
         </div>
       </section>
 
       {/* Articles Section */}
-      <section className="px-4 py-12 sm:py-16 sm:px-6 lg:px-8">
-        <div className="container-lg">
-          <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-8">
-            Articles from this newspaper
-          </h2>
+      <section className="py-20 bg-neutral-50">
+        <div className="container-editorial">
+          <div className="mb-12">
+            <h2 className="heading-xl text-neutral-900 mb-4">Gazeta maqolalari</h2>
+            <p className="text-lg text-neutral-600">Bu gazetadan eng so'nggi maqolalar</p>
+          </div>
 
           {!articles || articles.length === 0 ? (
-            <div className="rounded-lg border border-slate-200 bg-white p-12 text-center">
-              <p className="text-slate-600">No articles published yet</p>
+            <div className="rounded-2xl border border-neutral-200 bg-white p-12 text-center shadow-md">
+              <p className="text-neutral-600">Hozircha maqolalar chop etilmagan</p>
             </div>
           ) : (
-            <div className="grid gap-6 sm:grid-cols-2">
+            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
               {articles.map((article) => (
                 <Link
                   key={article.id}
                   href={`/article/${article.slug}`}
-                  className="group rounded-xl border border-slate-200 bg-white p-6 shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-200"
+                  className="group block"
                 >
-                  <h3 className="font-semibold text-lg text-slate-900 group-hover:text-blue-600 transition line-clamp-2">
-                    {article.title}
-                  </h3>
-                  {article.summary && (
-                    <p className="mt-3 line-clamp-2 text-sm text-slate-600">{article.summary}</p>
-                  )}
-                  <p className="mt-4 text-xs text-slate-500">
-                    {article.created_at
-                      ? new Date(article.created_at).toLocaleDateString(undefined, { 
-                          year: "numeric",
-                          month: "short",
-                          day: "numeric"
-                        })
-                      : "Unknown date"}
-                  </p>
+                  <article className="card-premium overflow-hidden hover-lift">
+                    {article.main_image_url && (
+                      <div className="relative h-48 overflow-hidden">
+                        <img
+                          src={article.main_image_url}
+                          alt={article.title}
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                      </div>
+                    )}
+
+                    <div className="p-6">
+                      <h3 className="text-base sm:text-lg font-semibold text-neutral-900 group-hover:text-[#1FC3D6] transition-premium mb-3 leading-tight line-clamp-2">
+                        {article.title}
+                      </h3>
+
+                      {article.summary && (
+                        <p className="text-neutral-600 mb-4 line-clamp-2 leading-relaxed">
+                          {article.summary}
+                        </p>
+                      )}
+
+                      <div className="flex items-center justify-between text-sm text-neutral-500">
+                        <time className="font-medium">
+                          {article.created_at
+                            ? new Date(article.created_at).toLocaleDateString('uz-UZ', {
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric'
+                              })
+                            : "Noma'lum sana"}
+                        </time>
+                        <span className="text-[#1FC3D6] font-medium group-hover:translate-x-1 transition-transform duration-200">
+                          O'qish →
+                        </span>
+                      </div>
+                    </div>
+                  </article>
                 </Link>
               ))}
             </div>

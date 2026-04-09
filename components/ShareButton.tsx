@@ -65,11 +65,11 @@ export default function ShareButton({ url, title }: ShareButtonProps) {
     <div className="inline-flex flex-col items-start gap-2">
       <button
         onClick={handleShare}
-        className="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2"
-        aria-label="Share this article"
+        className="btn-ghost text-sm px-4 py-2"
+        aria-label="Bu maqolani ulashish"
       >
         <svg
-          className="h-4 w-4"
+          className="h-4 w-4 mr-2"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -82,10 +82,10 @@ export default function ShareButton({ url, title }: ShareButtonProps) {
             d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"
           />
         </svg>
-        Share
+        Ulashish
       </button>
       {status ? (
-        <p className="text-xs text-slate-500" aria-live="polite">
+        <p className="text-xs text-neutral-500 font-medium" aria-live="polite">
           {status}
         </p>
       ) : null}

@@ -1,59 +1,198 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f8f9fa;
+  --background: #ffffff;
   --foreground: #0f1117;
-  --accent: #2563eb;
-  --neutral-300: #d1d5db;
+  --accent: #1FC3D6;
+  --neutral-50: #fafafa;
+  --neutral-100: #f5f5f5;
+  --neutral-200: #e5e5e5;
+  --neutral-300: #d4d4d4;
+  --neutral-400: #a3a3a3;
+  --neutral-500: #737373;
+  --neutral-600: #525252;
+  --neutral-700: #404040;
+  --neutral-800: #262626;
+  --neutral-900: #171717;
+  --turquoise-50: #f0fdfa;
+  --turquoise-100: #ccfbf1;
+  --turquoise-200: #99f6e4;
+  --turquoise-300: #5eead4;
+  --turquoise-400: #2dd4bf;
+  --turquoise-500: #1FC3D6;
+  --turquoise-600: #0d9488;
+  --turquoise-700: #0f766e;
+  --turquoise-800: #115e59;
+  --turquoise-900: #134e4a;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-accent: var(--accent);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+}
+
+* {
+  box-sizing: border-box;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
+  font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Typography System */
-h1 {
-  @apply text-4xl sm:text-5xl font-bold tracking-tight;
+/* Premium Typography System - Using standard Tailwind utilities */
+
+/* Premium Container utilities */
+.container-editorial {
+  @apply mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8;
 }
 
-h2 {
-  @apply text-2xl sm:text-3xl font-bold tracking-tight;
-}
-
-h3 {
-  @apply text-xl font-semibold;
-}
-
-p {
-  @apply leading-relaxed text-slate-700;
-}
-
-/* Container utilities */
-.container-lg {
-  @apply mx-auto max-w-7xl px-4 sm:px-6 lg:px-8;
-}
-
-.container-md {
+.container-content {
   @apply mx-auto max-w-4xl px-4 sm:px-6 lg:px-8;
 }
 
-.container-sm {
-  @apply mx-auto max-w-3xl px-4 sm:px-6 lg:px-8;
+.container-narrow {
+  @apply mx-auto max-w-2xl px-4 sm:px-6 lg:px-8;
 }
 
-/* Button styles */
+/* Premium Shadows */
+.shadow-premium {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.shadow-premium-lg {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.shadow-premium-xl {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.shadow-premium-inner {
+  box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+}
+
+/* Premium Button styles */
 .btn-primary {
-  @apply inline-block rounded-lg bg-blue-600 px-6 py-3 font-medium text-white hover:bg-blue-700 transition;
+  @apply inline-flex items-center justify-center rounded-lg bg-[#1FC3D6] px-6 py-3 font-semibold text-white shadow-lg transition-all duration-200 hover:bg-[#0d9488] hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-[#1FC3D6] focus:ring-offset-2;
 }
 
 .btn-secondary {
-  @apply inline-block rounded-lg border border-slate-300 bg-white px-6 py-3 font-medium text-slate-900 hover:bg-slate-50 transition;
+  @apply inline-flex items-center justify-center rounded-lg border border-neutral-300 bg-white px-6 py-3 font-semibold text-neutral-900 shadow-sm transition-all duration-200 hover:bg-neutral-50 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-neutral-500 focus:ring-offset-2;
+}
+
+.btn-ghost {
+  @apply inline-flex items-center justify-center rounded-lg bg-transparent px-4 py-2 font-medium text-[#1FC3D6] transition-all duration-200 hover:bg-[#1FC3D6]/10 focus:outline-none focus:ring-2 focus:ring-[#1FC3D6] focus:ring-offset-2;
+}
+
+/* Premium Card styles */
+.card-premium {
+  @apply rounded-xl bg-white shadow-md border border-neutral-200/50 transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+}
+
+.card-premium-lg {
+  @apply rounded-2xl bg-white shadow-lg border border-neutral-200/50 transition-all duration-300 hover:shadow-xl hover:-translate-y-2;
+}
+
+/* Premium Transitions */
+.transition-premium {
+  @apply transition-all duration-300 ease-out;
+}
+
+.transition-smooth {
+  @apply transition-all duration-200 ease-in-out;
+}
+
+/* Premium Hover Effects */
+.hover-lift {
+  @apply transition-transform duration-300 hover:-translate-y-1;
+}
+
+.hover-scale {
+  @apply transition-transform duration-300 hover:scale-105;
+}
+
+.hover-glow {
+  @apply transition-shadow duration-300 hover:shadow-lg;
+}
+
+/* Premium Typography for Articles */
+.article-title {
+  @apply text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-neutral-900 mb-6 leading-tight;
+}
+
+.article-subtitle {
+  @apply text-xl text-neutral-600 mb-8 leading-relaxed max-w-3xl;
+}
+
+.article-body {
+  @apply text-lg leading-relaxed text-neutral-700 mb-6;
+}
+
+.article-body h2 {
+  @apply text-2xl font-bold text-neutral-900 mt-12 mb-6 leading-tight;
+}
+
+.article-body h3 {
+  @apply text-xl font-semibold text-neutral-900 mt-10 mb-4 leading-tight;
+}
+
+.article-body p {
+  @apply mb-6 leading-relaxed;
+}
+
+.article-body ul {
+  @apply mb-6 ml-6 list-disc;
+}
+
+.article-body li {
+  @apply mb-2 leading-relaxed;
+}
+
+.article-body blockquote {
+  @apply border-l-4 border-[#1FC3D6] pl-6 py-2 my-8 italic text-neutral-700 bg-neutral-50;
+}
+
+/* Premium Badge/Tag styles */
+.badge-premium {
+  @apply inline-flex items-center rounded-full bg-[#1FC3D6]/10 px-3 py-1 text-xs font-semibold text-[#1FC3D6] uppercase tracking-wide;
+}
+
+.badge-secondary {
+  @apply inline-flex items-center rounded-full bg-neutral-100 px-3 py-1 text-xs font-semibold text-neutral-700 uppercase tracking-wide;
+}
+
+/* Premium Separator */
+.separator-premium {
+  @apply border-t border-neutral-200/50;
+}
+
+/* Premium Focus States */
+.focus-premium {
+  @apply focus:outline-none focus:ring-2 focus:ring-[#1FC3D6] focus:ring-offset-2;
+}
+
+/* Premium Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--neutral-100);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--neutral-400);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--neutral-500);
 }

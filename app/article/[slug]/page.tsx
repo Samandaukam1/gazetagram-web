@@ -34,6 +34,7 @@ type RelatedArticle = {
   title: string;
   summary: string | null;
   created_at: string | null;
+  main_image_url: string | null;
 };
 
 async function getArticle(slug: string) {
@@ -72,7 +73,7 @@ async function getRelatedArticles(article: Article) {
   const relatedByNewspaper = article.newspaper_id
     ? await supabase
         .from("articles")
-        .select("id,slug,title,summary,created_at")
+        .select("id,slug,title,summary,created_at,main_image_url")
         .eq("newspaper_id", article.newspaper_id)
         .neq("id", article.id)
         .order("created_at", { ascending: false })
@@ -86,7 +87,7 @@ async function getRelatedArticles(article: Article) {
   if (article.category) {
     const relatedByCategory = await supabase
       .from("articles")
-      .select("id,slug,title,summary,created_at")
+      .select("id,slug,title,summary,created_at,main_image_url")
       .eq("category", article.category)
       .neq("id", article.id)
       .order("created_at", { ascending: false })
@@ -122,7 +123,7 @@ export async function generateMetadata({
   }
 
   const title = article.title;
-  const description = article.summary ?? "Read the latest news on Gazetagram.";
+  const description = article.summary ?? "Gazetagram - O'zbekistonning eng ishonchli yangiliklar platformasi.";
   const canonicalUrl = `https://gazetagram.uz/article/${slug}`;
 
   return {
@@ -149,10 +150,15 @@ export default async function ArticleDetailPage({
 
   if (!slug || slug === "undefined") {
     return (
-      <main className="min-h-screen px-4 py-8 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-3xl rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
-          <h1 className="text-3xl font-bold text-slate-900">Invalid article slug</h1>
-          <p className="mt-4 text-slate-700">The article slug is missing or invalid.</p>
+      <main className="min-h-screen bg-white">
+        <div className="container-editorial py-20">
+          <div className="max-w-2xl mx-auto text-center">
+            <h1 className="heading-xl text-neutral-900 mb-4">Noto'g'ri maqola havolasi</h1>
+            <p className="text-neutral-600">Maqola havolasi noto'g'ri yoki mavjud emas.</p>
+            <Link href="/" className="mt-8 btn-ghost text-[#1FC3D6] hover:text-[#0d9488]">
+              ← Bosh sahifaga qaytish
+            </Link>
+          </div>
         </div>
       </main>
     );
@@ -167,11 +173,16 @@ export default async function ArticleDetailPage({
     }
 
     return (
-      <main className="min-h-screen px-4 py-8 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-3xl rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
-          <h1 className="text-3xl font-bold text-slate-900">Article error</h1>
-          <p className="mt-4 text-slate-700">Unable to load the article.</p>
-          <p className="mt-2 text-sm text-red-600">{error.message}</p>
+      <main className="min-h-screen bg-white">
+        <div className="container-editorial py-20">
+          <div className="max-w-2xl mx-auto text-center">
+            <h1 className="heading-xl text-neutral-900 mb-4">Maqola xatosi</h1>
+            <p className="text-neutral-600 mb-2">Maqolani yuklab bo'lmadi.</p>
+            <p className="text-sm text-red-600">{error.message}</p>
+            <Link href="/" className="mt-8 btn-ghost text-[#1FC3D6] hover:text-[#0d9488]">
+              ← Bosh sahifaga qaytish
+            </Link>
+          </div>
         </div>
       </main>
     );
@@ -193,137 +204,165 @@ export default async function ArticleDetailPage({
   const relatedArticles = await getRelatedArticles(article);
 
   return (
-    <main className="min-h-screen bg-slate-50">
-      {/* Breadcrumb Navigation */}
-      <div className="border-b border-slate-200 bg-white px-4 sm:px-6 lg:px-8">
-        <nav className="container-lg py-4" aria-label="Breadcrumb">
-          <ol className="flex flex-wrap items-center gap-2 text-sm text-slate-600">
-            <li>
-              <Link href="/" className="hover:text-slate-900 transition">Home</Link>
-            </li>
-            <li className="text-slate-400">/</li>
-            <li>
-              <Link href="/articles" className="hover:text-slate-900 transition">Articles</Link>
-            </li>
-            <li className="text-slate-400">/</li>
-            <li className="font-medium text-slate-900 truncate" aria-current="page">
+    <main className="min-h-screen bg-white">
+      {/* Premium Hero Section */}
+      <section className="relative min-h-screen flex items-end overflow-hidden">
+        {/* Background Image */}
+        {article.main_image_url && (
+          <div className="absolute inset-0">
+            <img
+              src={article.main_image_url}
+              alt={article.title}
+              className="w-full h-full object-cover scale-105"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/20"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-transparent to-transparent"></div>
+          </div>
+        )}
+
+        {/* Content */}
+        <div className="relative z-10 container-editorial pb-20">
+          <div className="max-w-4xl">
+            {/* Breadcrumb */}
+            <nav className="mb-8" aria-label="Breadcrumb">
+              <ol className="flex flex-wrap items-center gap-2 text-sm text-neutral-300">
+                <li>
+                  <Link href="/" className="hover:text-white transition-smooth">Bosh sahifa</Link>
+                </li>
+                <li className="text-neutral-400">/</li>
+                <li>
+                  <Link href="/articles" className="hover:text-white transition-smooth">Maqolalar</Link>
+                </li>
+                <li className="text-neutral-400">/</li>
+                <li className="font-medium text-white truncate" aria-current="page">
+                  {article.title}
+                </li>
+              </ol>
+            </nav>
+
+            {/* Article Header */}
+            <div className="mb-6">
+              <span className="badge-premium bg-[#1FC3D6]/20 text-white border-white/30">Maqola</span>
+            </div>
+
+            <h1 className="article-title text-white mb-6 leading-tight">
               {article.title}
-            </li>
-          </ol>
-        </nav>
-      </div>
+            </h1>
 
-      {/* Article Header */}
-      <div className="border-b border-slate-200 bg-white px-4 sm:px-6 lg:px-8">
-        <div className="container-md py-12 sm:py-16">
-          <div className="mb-6">
-            <p className="text-sm font-semibold uppercase tracking-wider text-slate-500">Article</p>
-          </div>
-          <h1 className="text-5xl sm:text-6xl font-bold leading-tight text-slate-900">
-            {article.title}
-          </h1>
-          <p className="mt-6 text-xl text-slate-600">
-            {article.summary ?? "No summary available."}
-          </p>
-          <div className="mt-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-            {articleNewspaper ? (
-              <div className="flex items-center gap-4">
-                {articleNewspaper.logo_url ? (
-                  <div className="h-14 w-14 overflow-hidden rounded-full border border-slate-200 bg-slate-100">
-                    <img
-                      src={articleNewspaper.logo_url}
-                      alt={articleNewspaper.name}
-                      className="h-full w-full object-cover"
-                    />
+            <p className="article-subtitle text-neutral-200 mb-8">
+              {article.summary ?? "Qisqacha mazmun mavjud emas."}
+            </p>
+
+            {/* Metadata Row */}
+            <div className="flex flex-wrap items-center gap-6 text-sm text-neutral-300 mb-8">
+              {article.created_at && (
+                <time className="font-medium">
+                  {new Date(article.created_at).toLocaleDateString('uz-UZ', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                  })}
+                </time>
+              )}
+              <span className="text-neutral-400">•</span>
+              <span className="font-medium">{readingTime(article.content ?? "")}</span>
+              {article.category && (
+                <>
+                  <span className="text-neutral-400">•</span>
+                  <span className="badge-secondary bg-white/10 text-white border-white/30">{article.category}</span>
+                </>
+              )}
+            </div>
+
+            {/* Newspaper & Share */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+              {articleNewspaper && (
+                <div className="flex items-center gap-4">
+                  {articleNewspaper.logo_url ? (
+                    <div className="h-16 w-16 rounded-full border-4 border-white/30 bg-white/10 backdrop-blur-sm overflow-hidden">
+                      <img
+                        src={articleNewspaper.logo_url}
+                        alt={articleNewspaper.name}
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <div className="h-16 w-16 rounded-full border-4 border-white/30 bg-white/10 backdrop-blur-sm flex items-center justify-center">
+                      <span className="text-sm font-bold text-white">
+                        {articleNewspaper.name.slice(0, 2).toUpperCase()}
+                      </span>
+                    </div>
+                  )}
+                  <div>
+                    <p className="text-lg font-semibold text-white">{articleNewspaper.name}</p>
+                    <p className="text-sm text-neutral-300">Gazeta</p>
                   </div>
-                ) : (
-                  <div className="flex h-14 w-14 items-center justify-center rounded-full bg-slate-100 text-sm font-semibold uppercase text-slate-500">
-                    {articleNewspaper.name.slice(0, 2)}
-                  </div>
-                )}
-                <div>
-                  <p className="text-base font-semibold text-slate-900">{articleNewspaper.name}</p>
-                  <p className="text-sm text-slate-500">Newspaper</p>
                 </div>
-              </div>
-            ) : null}
+              )}
 
-            <div className="flex flex-col items-start gap-3 sm:items-end">
-              <div className="flex flex-wrap items-center gap-4 text-sm text-slate-600">
-                <span>
-                  {article.created_at ? new Date(article.created_at).toLocaleDateString(undefined, {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  }) : "Date unavailable"}
-                </span>
-                <span className="text-slate-400">•</span>
-                <span>{readingTime(article.content ?? "")}</span>
+              <div className="flex items-center gap-4">
+                <ShareButton url={articleUrl} title={article.title} />
               </div>
-              <ShareButton url={articleUrl} title={article.title} />
             </div>
           </div>
         </div>
-      </div>
-
-      {/* Article Image */}
-      {article.main_image_url && (
-        <div className="border-b border-slate-200 bg-white px-4 sm:px-6 lg:px-8 py-8">
-          <div className="container-md">
-            <div className="overflow-hidden rounded-2xl bg-slate-200">
-              <img
-                src={article.main_image_url}
-                alt={article.title}
-                className="h-auto w-full object-cover"
-              />
-            </div>
-          </div>
-        </div>
-      )}
+      </section>
 
       {/* Article Content */}
-      <div className="px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-        <article className="container-md">
-          <div className="prose prose-slate max-w-none mb-12">
+      <section className="py-20 bg-white">
+        <div className="container-content">
+          <article className="article-body max-w-none">
             {article.content ? (
-              <div className="text-lg leading-relaxed text-slate-700 [&>p]:mb-6 [&>h2]:mt-8 [&>h2]:mb-4 [&>h2]:text-2xl [&>h2]:font-bold [&>h2]:text-slate-900 [&>ul]:mb-6 [&>li]:ml-6 [&>li]:mb-2">
-                {article.content}
-              </div>
+              <div
+                className="article-body prose prose-lg max-w-none"
+                dangerouslySetInnerHTML={{ __html: article.content }}
+              />
             ) : (
-              <p className="text-slate-600">No content available for this article.</p>
+              <p className="text-neutral-600 text-center py-12">
+                Bu maqola uchun kontent mavjud emas.
+              </p>
             )}
-          </div>
-        </article>
-      </div>
+          </article>
+        </div>
+      </section>
 
+      {/* Author Section */}
       {(article.author_name || article.author_role || article.author_bio || article.author_image_url) && (
-        <section className="border-t border-slate-200 bg-white px-4 sm:px-6 lg:px-8 py-10">
-          <div className="container-md">
-            <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-4">Maqola muallifi</p>
-            <div className="flex flex-col gap-6 rounded-3xl border border-slate-200 bg-slate-50 p-6 sm:flex-row sm:items-center">
-              <div className="flex-shrink-0">
-                {article.author_image_url ? (
-                  <img
-                    src={article.author_image_url}
-                    alt={article.author_name ?? "Author"}
-                    className="h-20 w-20 rounded-full object-cover"
-                  />
-                ) : (
-                  <div className="flex h-20 w-20 items-center justify-center rounded-full bg-slate-200 text-sm font-semibold uppercase text-slate-500">
-                    {article.author_name ? article.author_name.slice(0, 2) : "A"}
-                  </div>
-                )}
-              </div>
-              <div className="min-w-0 flex-1">
-                {article.author_name && (
-                  <p className="text-lg font-semibold text-slate-900">{article.author_name}</p>
-                )}
-                {article.author_role && (
-                  <p className="mt-1 text-sm text-slate-600">{article.author_role}</p>
-                )}
-                {article.author_bio && (
-                  <p className="mt-4 text-sm leading-7 text-slate-700">{article.author_bio}</p>
-                )}
+        <section className="py-16 bg-neutral-50">
+          <div className="container-content">
+            <div className="mb-8">
+              <span className="badge-premium">Muallif</span>
+            </div>
+
+            <div className="card-premium p-8">
+              <div className="flex flex-col sm:flex-row gap-6">
+                <div className="flex-shrink-0">
+                  {article.author_image_url ? (
+                    <img
+                      src={article.author_image_url}
+                      alt={article.author_name ?? "Muallif"}
+                      className="h-24 w-24 rounded-full object-cover shadow-md"
+                    />
+                  ) : (
+                    <div className="h-24 w-24 rounded-full bg-neutral-200 flex items-center justify-center shadow-md">
+                      <span className="text-lg font-bold text-neutral-600">
+                        {article.author_name ? article.author_name.slice(0, 2).toUpperCase() : "M"}
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex-1 min-w-0">
+                  {article.author_name && (
+                    <h3 className="text-lg sm:text-xl lg:text-2xl font-semibold text-neutral-900 mb-2">{article.author_name}</h3>
+                  )}
+                  {article.author_role && (
+                    <p className="text-neutral-600 font-medium mb-4">{article.author_role}</p>
+                  )}
+                  {article.author_bio && (
+                    <p className="text-neutral-700 leading-relaxed">{article.author_bio}</p>
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -332,32 +371,62 @@ export default async function ArticleDetailPage({
 
       {/* Related Articles Section */}
       {relatedArticles.length > 0 && (
-        <div className="border-t border-slate-200 bg-white px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-          <div className="container-md">
-            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-8">
-              Related Articles
-            </h2>
-            <div className="grid gap-6 sm:grid-cols-2">
+        <section className="py-20 bg-white">
+          <div className="container-editorial">
+            <div className="mb-12 text-center">
+              <h2 className="heading-xl text-neutral-900 mb-4">Tegishli maqolalar</h2>
+              <p className="text-lg text-neutral-600">Shunga o'xshash mavzularni o'qing</p>
+            </div>
+
+            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
               {relatedArticles.map((related) => (
                 <Link
                   key={related.id}
                   href={`/article/${related.slug}`}
-                  className="group rounded-xl border border-slate-200 bg-slate-50 p-6 hover:shadow-md hover:border-slate-300 transition-all duration-200"
+                  className="group block"
                 >
-                  <h3 className="font-semibold text-slate-900 group-hover:text-blue-600 transition line-clamp-2">
-                    {related.title}
-                  </h3>
-                  <p className="mt-3 text-sm text-slate-600 line-clamp-2">
-                    {related.summary ?? "No summary available."}
-                  </p>
-                  <p className="mt-4 text-xs text-slate-500">
-                    {related.created_at ? new Date(related.created_at).toLocaleDateString() : "Unknown date"}
-                  </p>
+                  <article className="card-premium overflow-hidden hover-lift">
+                    {related.main_image_url && (
+                      <div className="relative h-48 overflow-hidden">
+                        <img
+                          src={related.main_image_url}
+                          alt={related.title}
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                      </div>
+                    )}
+
+                    <div className="p-6">
+                      <h3 className="text-base sm:text-lg font-semibold text-neutral-900 group-hover:text-[#1FC3D6] transition-premium mb-3 leading-tight line-clamp-2">
+                        {related.title}
+                      </h3>
+
+                      <p className="text-neutral-600 mb-4 line-clamp-2 leading-relaxed">
+                        {related.summary ?? "Qisqacha mazmun mavjud emas"}
+                      </p>
+
+                      <div className="flex items-center justify-between text-sm text-neutral-500">
+                        <time className="font-medium">
+                          {related.created_at
+                            ? new Date(related.created_at).toLocaleDateString('uz-UZ', {
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric'
+                              })
+                            : "Noma'lum sana"}
+                        </time>
+                        <span className="text-[#1FC3D6] font-medium group-hover:translate-x-1 transition-transform duration-200">
+                          O'qish →
+                        </span>
+                      </div>
+                    </div>
+                  </article>
                 </Link>
               ))}
             </div>
           </div>
-        </div>
+        </section>
       )}
     </main>
   );

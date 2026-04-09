@@ -6,6 +6,7 @@ type Article = {
   slug: string;
   title: string;
   summary: string | null;
+  main_image_url: string | null;
   created_at: string | null;
 };
 
@@ -18,12 +19,23 @@ type Newspaper = {
   region: string | null;
 };
 
+async function getFeaturedArticle() {
+  const { data, error } = await supabase
+    .from("articles")
+    .select("id,slug,title,summary,main_image_url,created_at")
+    .not("main_image_url", "is", null)
+    .order("created_at", { ascending: false })
+    .limit(1);
+
+  return { data: data?.[0] || null, error };
+}
+
 async function getLatestArticles() {
   const { data, error } = await supabase
     .from("articles")
-    .select("id,slug,title,summary,created_at")
+    .select("id,slug,title,summary,main_image_url,created_at")
     .order("created_at", { ascending: false })
-    .limit(5);
+    .limit(6);
 
   return { data, error };
 }
@@ -38,129 +50,215 @@ async function getNewspapers() {
 }
 
 export default async function Home() {
+  const { data: featuredArticle, error: featuredError } = await getFeaturedArticle();
   const { data: articles, error: articlesError } = await getLatestArticles();
   const { data: newspapers, error: newspapersError } = await getNewspapers();
 
   return (
-    <main className="min-h-screen bg-slate-50">
-      {/* Hero Section */}
-      <section className="border-b border-slate-200 bg-white px-4 py-20 sm:py-32 sm:px-6 lg:px-8">
-        <div className="container-lg">
-          <div className="max-w-2xl">
-            <h1 className="text-5xl sm:text-6xl font-bold leading-tight text-slate-900">
-              Gazetagram
-            </h1>
-            <p className="mt-6 text-xl text-slate-600">
-              Stay informed with the latest news and stories from trusted sources across Uzbekistan.
-            </p>
-            <div className="mt-8 flex flex-col sm:flex-row gap-4">
-              <Link
-                href="/articles"
-                className="btn-primary"
-              >
-                Browse Articles
-              </Link>
-              <Link
-                href="/newspapers"
-                className="btn-secondary"
-              >
-                Explore Newspapers
-              </Link>
-            </div>
+    <main className="min-h-screen bg-white">
+      {/* Premium Hero Section */}
+      <section className="relative min-h-screen flex items-center overflow-hidden">
+        {/* Background Image */}
+        {featuredArticle?.main_image_url && (
+          <div className="absolute inset-0">
+            <img
+              src={featuredArticle.main_image_url}
+              alt={featuredArticle.title}
+              className="w-full h-full object-cover scale-105 transition-transform duration-700 hover:scale-110"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-black/40"></div>
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
           </div>
+        )}
+
+        {/* Content */}
+        <div className="relative z-10 container-editorial py-20">
+          <div className="max-w-4xl">
+            <div className="mb-6">
+              <span className="badge-premium">Featured Article</span>
+            </div>
+
+            {featuredArticle ? (
+              <>
+                <h1 className="display-xl text-white mb-6 leading-tight">
+                  {featuredArticle.title}
+                </h1>
+                <p className="text-xl text-neutral-200 mb-8 leading-relaxed max-w-2xl">
+                  {featuredArticle.summary || "Discover the latest insights and stories from trusted sources."}
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <Link
+                    href={`/article/${featuredArticle.slug}`}
+                    className="btn-primary bg-[#1FC3D6] hover:bg-[#0d9488] text-white px-8 py-4 text-lg shadow-lg"
+                  >
+                    Maqolani o'qish
+                  </Link>
+                  <Link
+                    href="/articles"
+                    className="btn-ghost border-white/30 text-white hover:bg-white/10 px-8 py-4 text-lg"
+                  >
+                    Barcha maqolalar
+                  </Link>
+                </div>
+              </>
+            ) : (
+              <>
+                <h1 className="display-xl text-white mb-6 leading-tight">
+                  Gazetagram
+                </h1>
+                <p className="text-xl text-neutral-200 mb-8 leading-relaxed max-w-2xl">
+                  O'zbekistonning eng ishonchli manbalaridan so'nggi yangiliklar va hikoyalarni o'qing.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <Link
+                    href="/articles"
+                    className="btn-primary bg-[#1FC3D6] hover:bg-[#0d9488] text-white px-8 py-4 text-lg shadow-lg"
+                  >
+                    Maqolalarni ko'rish
+                  </Link>
+                  <Link
+                    href="/newspapers"
+                    className="btn-ghost border-white/30 text-white hover:bg-white/10 px-8 py-4 text-lg"
+                  >
+                    Gazetalarni kashf qilish
+                  </Link>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Scroll Indicator */}
+        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+          <svg className="w-6 h-6 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+          </svg>
         </div>
       </section>
 
       {/* Latest Articles Section */}
-      <section className="px-4 py-16 sm:py-24 sm:px-6 lg:px-8">
-        <div className="container-lg">
-          <div className="mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold text-slate-900">Latest Articles</h2>
-            <p className="mt-3 text-lg text-slate-600">Stay updated with the newest stories</p>
+      <section className="py-20 bg-neutral-50">
+        <div className="container-editorial">
+          <div className="mb-16 text-center">
+            <h2 className="heading-xl text-neutral-900 mb-4">So'nggi maqolalar</h2>
+            <p className="text-lg text-neutral-600 max-w-2xl mx-auto">
+              Eng yangi hikoyalar bilan xabardor bo'ling
+            </p>
           </div>
 
           {articlesError ? (
-            <div className="rounded-lg border border-red-200 bg-red-50 p-8">
-              <p className="font-medium text-red-800">Unable to load articles</p>
-              <p className="mt-2 text-sm text-red-700">{articlesError.message}</p>
+            <div className="rounded-2xl border border-red-200 bg-red-50 p-12 text-center">
+              <p className="text-base sm:text-lg font-semibold text-red-800 mb-2">Maqolalarni yuklab bo'lmadi</p>
+              <p className="text-red-700">{articlesError.message}</p>
             </div>
           ) : !articles || articles.length === 0 ? (
-            <div className="rounded-lg border border-slate-200 bg-white p-12 text-center">
-              <p className="text-slate-600">No articles available yet</p>
+            <div className="rounded-2xl border border-neutral-200 bg-white p-12 text-center shadow-md">
+              <p className="text-neutral-600">Hozircha maqolalar mavjud emas</p>
             </div>
           ) : (
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {articles.map((article) => {
+            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+              {articles.slice(0, 6).map((article, index) => {
                 if (!article.slug) {
                   console.warn(`[Homepage Articles] Skipping article with missing slug: id=${article.id}, title=${article.title}`);
                   return null;
                 }
 
+                const isLarge = index === 0; // First article is featured
+
                 return (
                   <Link
                     key={article.id}
                     href={`/article/${article.slug}`}
-                    className="group rounded-xl border border-slate-200 bg-white p-6 shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-200"
+                    className={`group block ${isLarge ? 'md:col-span-2 lg:col-span-2' : ''}`}
                   >
-                    <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-                      Article
-                    </p>
-                    <h3 className="mt-3 text-lg font-semibold text-slate-900 group-hover:text-blue-600 transition line-clamp-2">
-                      {article.title}
-                    </h3>
-                    <p className="mt-3 text-sm text-slate-600 line-clamp-2">
-                      {article.summary ?? "No summary available"}
-                    </p>
-                    <p className="mt-4 text-xs text-slate-500">
-                      {article.created_at
-                        ? new Date(article.created_at).toLocaleDateString()
-                        : "Unknown date"}
-                    </p>
+                    <article className={`card-premium ${isLarge ? 'card-premium-lg' : ''} overflow-hidden`}>
+                      {article.main_image_url && (
+                        <div className={`relative overflow-hidden ${isLarge ? 'h-64' : 'h-48'}`}>
+                          <img
+                            src={article.main_image_url}
+                            alt={article.title}
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        </div>
+                      )}
+
+                      <div className={`p-6 ${isLarge ? 'p-8' : ''}`}>
+                        <div className="mb-3">
+                          <span className="badge-secondary">Maqola</span>
+                        </div>
+
+                        <h3 className={`font-bold text-neutral-900 group-hover:text-[#1FC3D6] transition-premium line-clamp-2 ${isLarge ? 'text-xl' : 'text-lg'}`}>
+                          {article.title}
+                        </h3>
+
+                        <p className={`mt-3 text-neutral-600 line-clamp-2 ${isLarge ? 'text-base' : 'text-sm'}`}>
+                          {article.summary ?? "Qisqacha mazmun mavjud emas"}
+                        </p>
+
+                        <div className="mt-4 flex items-center justify-between">
+                          <time className="text-xs text-neutral-500 font-medium">
+                            {article.created_at
+                              ? new Date(article.created_at).toLocaleDateString('uz-UZ', {
+                                  year: 'numeric',
+                                  month: 'long',
+                                  day: 'numeric'
+                                })
+                              : "Noma'lum sana"}
+                          </time>
+                          <span className="text-xs text-[#1FC3D6] font-medium group-hover:translate-x-1 transition-transform duration-200">
+                            O'qish →
+                          </span>
+                        </div>
+                      </div>
+                    </article>
                   </Link>
                 );
               })}
             </div>
           )}
 
-          <div className="mt-10 text-center">
+          <div className="mt-16 text-center">
             <Link
               href="/articles"
-              className="text-blue-600 hover:text-blue-700 font-medium transition"
+              className="btn-ghost text-[#1FC3D6] hover:text-[#0d9488] font-semibold"
             >
-              View all articles →
+              Barcha maqolalarni ko'rish →
             </Link>
           </div>
         </div>
       </section>
 
       {/* Featured Newspapers Section */}
-      <section className="border-t border-slate-200 bg-white px-4 py-16 sm:py-24 sm:px-6 lg:px-8">
-        <div className="container-lg">
-          <div className="mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold text-slate-900">Featured Newspapers</h2>
-            <p className="mt-3 text-lg text-slate-600">Read from trusted news sources</p>
+      <section className="py-20 bg-white">
+        <div className="container-editorial">
+          <div className="mb-16 text-center">
+            <h2 className="heading-xl text-neutral-900 mb-4">Tanlangan gazetalar</h2>
+            <p className="text-lg text-neutral-600 max-w-2xl mx-auto">
+              Ishonchli yangilik manbalaridan o'qing
+            </p>
           </div>
 
           {newspapersError ? (
-            <div className="rounded-lg border border-red-200 bg-red-50 p-8">
-              <p className="font-medium text-red-800">Unable to load newspapers</p>
-              <p className="mt-2 text-sm text-red-700">{newspapersError.message}</p>
+            <div className="rounded-2xl border border-red-200 bg-red-50 p-12 text-center">
+              <p className="text-base sm:text-lg font-semibold text-red-800 mb-2">Gazetalarni yuklab bo'lmadi</p>
+              <p className="text-red-700">{newspapersError.message}</p>
             </div>
           ) : !newspapers || newspapers.length === 0 ? (
-            <div className="rounded-lg border border-slate-200 bg-slate-50 p-12 text-center">
-              <p className="text-slate-600">No newspapers available yet</p>
+            <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-12 text-center shadow-md">
+              <p className="text-neutral-600">Hozircha gazetalar mavjud emas</p>
             </div>
           ) : (
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
               {newspapers.map((newspaper) => {
                 if (!newspaper.slug) {
                   return (
                     <div
                       key={newspaper.id}
-                      className="relative rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden"
+                      className="card-premium overflow-hidden opacity-75"
                     >
                       {/* Banner */}
-                      <div className="h-32 bg-slate-200 rounded-t-xl">
+                      <div className="h-40 bg-gradient-to-br from-neutral-200 to-neutral-300 rounded-t-xl">
                         {newspaper.banner_url ? (
                           <img
                             src={newspaper.banner_url}
@@ -168,14 +266,14 @@ export default async function Home() {
                             className="h-full w-full object-cover rounded-t-xl"
                           />
                         ) : (
-                          <div className="h-full w-full bg-gradient-to-br from-slate-200 to-slate-300 rounded-t-xl" />
+                          <div className="h-full w-full bg-gradient-to-br from-neutral-200 to-neutral-300 rounded-t-xl" />
                         )}
                       </div>
 
                       {/* Logo - Overlapping */}
-                      <div className="absolute top-20 left-4">
+                      <div className="absolute top-28 left-6">
                         {newspaper.logo_url ? (
-                          <div className="h-16 w-16 rounded-full border-4 border-white bg-white shadow-lg overflow-hidden">
+                          <div className="h-20 w-20 rounded-full border-4 border-white bg-white shadow-md overflow-hidden">
                             <img
                               src={newspaper.logo_url}
                               alt={newspaper.name}
@@ -183,8 +281,8 @@ export default async function Home() {
                             />
                           </div>
                         ) : (
-                          <div className="h-16 w-16 rounded-full border-4 border-white bg-slate-100 shadow-lg flex items-center justify-center">
-                            <span className="text-sm font-semibold text-slate-500">
+                          <div className="h-20 w-20 rounded-full border-4 border-white bg-neutral-100 shadow-md flex items-center justify-center">
+                            <span className="text-sm font-bold text-neutral-500">
                               {newspaper.name.slice(0, 2).toUpperCase()}
                             </span>
                           </div>
@@ -192,11 +290,12 @@ export default async function Home() {
                       </div>
 
                       {/* Content */}
-                      <div className="p-6 pt-8">
-                        <h3 className="font-semibold text-slate-900">{newspaper.name}</h3>
+                      <div className="p-6 pt-12">
+                        <h3 className="text-base sm:text-lg font-semibold text-neutral-900 mb-2">{newspaper.name}</h3>
                         {newspaper.region && (
-                          <p className="mt-1 text-sm text-slate-600">{newspaper.region}</p>
+                          <p className="text-sm text-neutral-600 font-medium">{newspaper.region}</p>
                         )}
+                        <p className="text-xs text-neutral-500 mt-2">Gazeta mavjud emas</p>
                       </div>
                     </div>
                   );
@@ -206,59 +305,69 @@ export default async function Home() {
                   <Link
                     key={newspaper.id}
                     href={`/newspaper/${newspaper.slug}`}
-                    className="group relative rounded-xl border border-slate-200 bg-white shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-200 overflow-hidden block"
+                    className="group block"
                   >
-                    {/* Banner */}
-                    <div className="h-32 bg-slate-200 rounded-t-xl">
-                      {newspaper.banner_url ? (
-                        <img
-                          src={newspaper.banner_url}
-                          alt={newspaper.name}
-                          className="h-full w-full object-cover rounded-t-xl"
-                        />
-                      ) : (
-                        <div className="h-full w-full bg-gradient-to-br from-slate-200 to-slate-300 rounded-t-xl" />
-                      )}
-                    </div>
-
-                    {/* Logo - Overlapping */}
-                    <div className="absolute top-20 left-4">
-                      {newspaper.logo_url ? (
-                        <div className="h-16 w-16 rounded-full border-4 border-white bg-white shadow-lg overflow-hidden">
+                    <article className="card-premium overflow-hidden hover-lift">
+                      {/* Banner */}
+                      <div className="h-40 bg-gradient-to-br from-neutral-200 to-neutral-300 rounded-t-xl overflow-hidden">
+                        {newspaper.banner_url ? (
                           <img
-                            src={newspaper.logo_url}
+                            src={newspaper.banner_url}
                             alt={newspaper.name}
-                            className="h-full w-full object-cover"
+                            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                           />
-                        </div>
-                      ) : (
-                        <div className="h-16 w-16 rounded-full border-4 border-white bg-slate-100 shadow-lg flex items-center justify-center">
-                          <span className="text-sm font-semibold text-slate-500">
-                            {newspaper.name.slice(0, 2).toUpperCase()}
-                          </span>
-                        </div>
-                      )}
-                    </div>
+                        ) : (
+                          <div className="h-full w-full bg-gradient-to-br from-[#1FC3D6]/20 to-[#0d9488]/20 rounded-t-xl" />
+                        )}
+                      </div>
 
-                    {/* Content */}
-                    <div className="p-6 pt-8">
-                      <h3 className="font-semibold text-slate-900 group-hover:text-blue-600 transition">{newspaper.name}</h3>
-                      {newspaper.region && (
-                        <p className="mt-1 text-sm text-slate-600">{newspaper.region}</p>
-                      )}
-                    </div>
+                      {/* Logo - Overlapping */}
+                      <div className="absolute top-28 left-6">
+                        {newspaper.logo_url ? (
+                          <div className="h-20 w-20 rounded-full border-4 border-white bg-white shadow-md overflow-hidden transition-transform duration-300 group-hover:scale-110">
+                            <img
+                              src={newspaper.logo_url}
+                              alt={newspaper.name}
+                              className="h-full w-full object-cover"
+                            />
+                          </div>
+                        ) : (
+                          <div className="h-20 w-20 rounded-full border-4 border-white bg-neutral-100 shadow-md flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
+                            <span className="text-sm font-bold text-neutral-500">
+                              {newspaper.name.slice(0, 2).toUpperCase()}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Content */}
+                      <div className="p-6 pt-12">
+                        <h3 className="text-base sm:text-lg font-semibold text-neutral-900 group-hover:text-[#1FC3D6] transition-premium mb-2">
+                          {newspaper.name}
+                        </h3>
+                        {newspaper.region && (
+                          <p className="text-sm text-neutral-600 font-medium">{newspaper.region}</p>
+                        )}
+                        <div className="mt-4 flex items-center text-xs text-[#1FC3D6] font-medium">
+                          <span>Kashf qilish</span>
+                          <svg className="w-4 h-4 ml-1 transition-transform duration-200 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          </svg>
+                        </div>
+                      </div>
+                    </article>
                   </Link>
                 );
               })}
             </div>
           )}
 
-          <div className="mt-10 text-center">
+          <div className="mt-16 text-center">
             <Link
               href="/newspapers"
-              className="text-blue-600 hover:text-blue-700 font-medium transition"
+              className="btn-ghost text-[#1FC3D6] hover:text-[#0d9488] font-semibold"
             >
-              View all newspapers →
+              Barcha gazetalarni ko'rish →
             </Link>
           </div>
         </div>
